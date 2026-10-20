@@ -1,5 +1,4 @@
-
-package zooquest;
+package main;
 
 public class Mystery {
     private String mysteryName;

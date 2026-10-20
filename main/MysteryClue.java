@@ -1,4 +1,4 @@
-package zooquest;
+package main;
 
 /** A single clue tied to one animal. */
 public class MysteryClue {
