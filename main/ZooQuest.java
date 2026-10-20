@@ -1,9 +1,9 @@
-package mysterygame;
+package main;
 
 import java.nio.file.Path;
 
 /** Console demo that exercises GameManager the way the UI will. */
-public class Main {
+public class ZooQuest {
     public static void main(String[] args) throws Exception {
         Path saveDir = Path.of("saves");
         GameManager gm = new GameManager(saveDir);
