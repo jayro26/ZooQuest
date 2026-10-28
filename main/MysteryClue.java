@@ -18,6 +18,10 @@ public class MysteryClue {
         revealed = true;
     }
 
+    public void hide() {
+        revealed = false;
+    }
+
     public boolean isRevealed() {
         return revealed;
     }
