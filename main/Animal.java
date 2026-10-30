@@ -31,6 +31,8 @@ public static Animal create(char type, String name, String species, String habit
       return new Safari(name, species, habitat, diet, status, behaviour, feature);
     case 'A':
       return new Aquatic(name, species, habitat, diet, status, behaviour, feature);
+    default: // added code
+      throw new IllegalArgumentException("Unknown animal type: " + type); // added code
   }
 }
 
@@ -77,6 +79,3 @@ public String getBehaviour() {
   return behaviour;
     }
 }
-
-  
-  

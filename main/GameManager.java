@@ -1,12 +1,12 @@
 package main;
 
-import main.ZooQuest.ZoneLockedException;
-import main.ZooQuest.InsufficientCluesException;
-import main.ZooQuest.AnimalNotFoundException;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.*;
+import main.ZooQuest.AnimalNotFoundException;
+import main.ZooQuest.InsufficientCluesException;
+import main.ZooQuest.ZoneLockedException;
 
 /**
  * Controls the overall game flow: loading biomes, running the mystery game,
@@ -18,6 +18,8 @@ import java.util.*;
 public class GameManager {
     public static final int BIOME_COUNT = 3;
     public static final int ANIMALS_PER_BIOME = 10;
+
+    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // NEW CODE: Jungle, Safari, Aquatic
 
     private static final String[] NUMBER_WORDS =
             {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
@@ -56,9 +58,12 @@ public class GameManager {
                 String animalName = "animal_" + NUMBER_WORDS[a];
                 MysteryClue clue = new MysteryClue(biomeName + "_clue_" + (a + 1),
                         "Clue for " + animalName + " in " + biomeName, animalName);
-                biome.addAnimal(new Animal(animalName, "species_" + NUMBER_WORDS[a], biomeName,
-                        "diet_" + NUMBER_WORDS[a], "feature_" + NUMBER_WORDS[a],
-                        "images/" + biomeName + "/" + animalName + ".png", clue));
+                // NEW CODE (replaces the `new Animal(...)` call, which cannot compile: Animal is abstract)
+                Animal animal = Animal.create(BIOME_TYPES[b], animalName, "species_" + NUMBER_WORDS[a], biomeName,
+                        "diet_" + NUMBER_WORDS[a], "status_" + NUMBER_WORDS[a],
+                        "behaviour_" + NUMBER_WORDS[a], "feature_" + NUMBER_WORDS[a]);
+                animal.setAssociatedClue(clue); // NEW CODE
+                biome.addAnimal(animal);
             }
             allBiomes.add(biome);
         }

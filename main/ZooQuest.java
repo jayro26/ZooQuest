@@ -27,6 +27,8 @@ public class ZooQuest {
         gm2.initializeGame("demo_player");
         System.out.println("Reloaded -> " + gm2.getCurrentPlayer().showProgress());
         gm2.getAllBiomes().forEach(b -> System.out.println(b.getBiomeName() + " locked=" + b.isLocked()));
+
+        new AppCoordinator().run("zoo_ranger"); // NEW CODE: full 3-biome playthrough
     }
 
     private static void play(GameManager gm, int rounds) throws Exception {
