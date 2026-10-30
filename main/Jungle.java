@@ -16,4 +16,7 @@ public class Jungle extends Animal {
 
     @Override
     public String getSpriteTemplate() { return "sprites/jungle_template.png"; }
+
+    @Override
+    public String getRevealMessage() { return "It swings down from the canopy and drops in front of you!"; } // NEW CODE
 }

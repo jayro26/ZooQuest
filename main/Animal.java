@@ -2,14 +2,14 @@ package main;
 
 public abstract class Animal {
 
-  protected final String name;
-  protected final String species;
-  protected final String habitat;
-  protected final String diet;
-  protected final String status;
-  protected final String behaviour;
-  protected final String uniqueFeature;
-  protected MysteryClue associatedClue; 
+  private final String name;
+  private final String species;
+  private final String habitat;
+  private final String diet;
+  private final String status;
+  private final String behaviour;
+  private final String uniqueFeature;
+  private MysteryClue associatedClue; 
 
 protected Animal(String name, String species, String habitat, String diet, String status, String behaviour, String uniqueFeature) {
   
@@ -39,6 +39,7 @@ public static Animal create(char type, String name, String species, String habit
 public abstract String getAnimalType();
 public abstract String getMovementStyle();
 public abstract String getSpriteTemplate();
+public abstract String getRevealMessage(); // NEW CODE: each type reacts to being found in its own way
 
 public String displayBehaviour() {
   return behaviour + "\n\n[" + getAnimalType() + "] " + getMovementStyle();
@@ -52,6 +53,9 @@ public MysteryClue getClue() {
 }
 
 public void setAssociatedClue(MysteryClue c) {
+  // NEW CODE: the clue can be attached only once
+  if (c == null) throw new IllegalArgumentException("Clue cannot be null.");
+  if (this.associatedClue != null) throw new IllegalStateException(name + " already has a clue.");
   this.associatedClue = c;
 }
 

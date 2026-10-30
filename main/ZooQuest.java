@@ -5,11 +5,12 @@ import java.nio.file.Path;
 /** Console demo that exercises GameManager the way the UI will. */
 public class ZooQuest {
     public static void main(String[] args) throws Exception {
-        // added code: interactive menu is the default; pass "--demo" to run the original scripted demo below
+        // NEW CODE: interactive menu is the default; pass "--demo" to run the original scripted demo below
         if (args.length == 0 || !args[0].equals("--demo")) {
             new MenuCoordinator(Path.of("saves")).run();
             return;
         }
+
         Path saveDir = Path.of("saves");
         GameManager gm = new GameManager(saveDir);
         gm.initializeGame("demo_player");

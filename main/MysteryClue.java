@@ -14,11 +14,11 @@ public class MysteryClue {
         this.revealed = false;
     }
 
-    public void reveal() {
+    void reveal() {
         revealed = true;
     }
 
-    public void hide() {
+    void hide() {
         revealed = false;
     }
 

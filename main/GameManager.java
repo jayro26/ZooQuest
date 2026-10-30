@@ -3,6 +3,7 @@ package main;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException; // NEW CODE
 import java.util.*;
 import main.ZooQuest.AnimalNotFoundException;
 import main.ZooQuest.InsufficientCluesException;
@@ -12,17 +13,22 @@ import main.ZooQuest.ZoneLockedException;
  * Controls the overall game flow: loading biomes, running the mystery game,
  * handling biome completion (achievement + unlock) and saving progress.
  *
- * Saving rule: progress is written ONLY when a biome is completed.
+ * Saving rule: progress is written ONLY when a biome is completed (or the player is renamed).
  * Leaving a biome mid-game discards that biome's progress and saves nothing.
+ *
+ * NEW CODE: this class now also owns the achievement rules (two badges per biome), the clue mode of a run,
+ * renaming and the read-only queries the UI needs, so a UI never has to touch the domain objects directly.
  */
 public class GameManager {
     public static final int BIOME_COUNT = 3;
     public static final int ANIMALS_PER_BIOME = 10;
+    public static final int BADGES_PER_BIOME = 2; // NEW CODE: Clear badge + No-Clue badge
 
-    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; 
+    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // NEW CODE: Jungle, Safari, Aquatic
     private static final String[] BIOME_NAMES = {"Jungle", "Safari", "Aqua"};
     private static final String[] BIOME_DESCRIPTIONS = {"Description 1", "Description 2", "Description 3"};
-  
+    private static final String HIDDEN_CLUE_TEXT = "(clue hidden)"; // NEW CODE
+
     // Format per animal: { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
     private static final String[][][] ANIMAL_DATA = {
     // Biome 0: Jungle ('J') - 10 Animals
@@ -162,9 +168,23 @@ public class GameManager {
     private Biome currentBiome;
     private int currentBiomeIndex = -1;
 
+    // NEW CODE: state of the run in progress (reset whenever a biome is started or left)
+    private boolean cluesOnTap = true;   // true = clue comes with every tap, false = no-clue challenge
+    private boolean cluesUsed;           // a clue was delivered during this run -> No-Clue badge is out of reach
+    private boolean clueShown;           // the clue of the currently tapped animal was delivered
+    private int wrongGuesses;
+
     /** Result of one guess, handed to the UI. */
+    /**
+     * NEW CODE: achievementEarned is the biome's Clear badge (null until the biome is completed; on a replay it is
+     * the badge the player already owned). newAchievements lists only the badges actually awarded by this guess.
+     */
     public record GuessResult(boolean correct, Animal revealedAnimal, int foundCount,
-                              int totalCount, boolean biomeCompleted, Achievement achievementEarned) { }
+                              int totalCount, boolean biomeCompleted, Achievement achievementEarned,
+                              List<Achievement> newAchievements) { }
+
+    /** NEW CODE: what the biome list shows for a biome. PERFECT = both badges earned. */
+    public enum BiomeStatus { LOCKED, UNLOCKED, COMPLETED, PERFECT }
 
     public GameManager(Path saveDirectory) {
         this.saveDirectory = saveDirectory;
@@ -177,6 +197,7 @@ public class GameManager {
         currentPlayer = new UserProfile(username);
         currentBiome = null;
         currentBiomeIndex = -1;
+        resetRunState(); // NEW CODE
         buildBiomes();
         loadProgress();
     }
@@ -185,25 +206,36 @@ public class GameManager {
     allBiomes.clear();
     for (int b = 0; b < BIOME_COUNT; b++) {
         String biomeName = BIOME_NAMES[b];
-        Biome biome = new Biome(biomeName, BIOME_DESCRIPTIONS[b], b != 0);
-
+        String biomeDesc = BIOME_DESCRIPTIONS[b];
+        
+        Biome biome = Biome.create(BIOME_TYPES[b], biomeName, biomeDesc, b != 0);
+        
         for (int a = 0; a < ANIMALS_PER_BIOME; a++) {
             String[] data = ANIMAL_DATA[b][a];
-            String animalName = data[0];
-            String species    = data[1];
-            String diet       = data[2];
-            String status     = data[3];
-            String behaviour  = data[4];
-            String feature    = data[5]; // Shown in getDescription()
-            String clueText   = data[6];
+            String animalName    = data[0];
+            String species       = data[1];
+            String diet          = data[2];
+            String status        = data[3];
+            String behaviour     = data[4];
+            String uniqueFeature = data[5];
+            String clueHint      = data[6];
 
             MysteryClue clue = new MysteryClue(
-                    biomeName + "_clue_" + (a + 1), clueText, animalName);
+                    biomeName + "_clue_" + (a + 1),
+                    clueHint,
+                    animalName
+            );
 
             Animal animal = Animal.create(
-                    BIOME_TYPES[b], animalName, species, biomeName,
-                    diet, status, behaviour, feature);
-
+                    biome.getAnimalTypeCode(),
+                    animalName,
+                    species,
+                    biomeName, // habitat
+                    diet,
+                    status,
+                    behaviour,
+                    uniqueFeature
+            );
             animal.setAssociatedClue(clue);
             biome.addAnimal(animal);
         }
@@ -226,13 +258,50 @@ public class GameManager {
         biome.resetProgress();          // every attempt starts from zero
         currentBiome = biome;
         currentBiomeIndex = biomeIndex;
+        resetRunState();                // NEW CODE: default clue mode = clues on tap
     }
 
-    /** Player taps a hidden animal; returns the clue to show. Choices come from getCurrentChoices(). */
+    /**
+     * NEW CODE: chooses the clue mode of this run. true (default) = the clue is delivered with every tap;
+     * false = no-clue challenge: clues stay hidden until revealClue() is called, which forfeits the No-Clue badge.
+     * Only allowed before the first animal is tapped.
+     */
+    public void setClueMode(boolean cluesOnTap) {
+        requireActiveBiome();
+        if (currentBiome.getBiomeMystery().getRoundCount() > 0) {
+            throw new IllegalStateException("The clue mode can only be chosen before the first animal is tapped.");
+        }
+        this.cluesOnTap = cluesOnTap;
+    }
+
+    /**
+     * Player taps a hidden animal; returns the clue to show. Choices come from getCurrentChoices().
+     * NEW CODE: in the no-clue challenge the returned clue is a masked placeholder (its text is "(clue hidden)")
+     * until revealClue() is called; use isClueShown() to know whether the real clue was delivered.
+     */
     public MysteryClue selectHiddenAnimal(String animalName) throws AnimalNotFoundException {
         requireActiveBiome();
-        return currentBiome.getBiomeMystery().selectHiddenAnimal(animalName);
+        MysteryClue clue = currentBiome.getBiomeMystery().selectHiddenAnimal(animalName);
+        clueShown = cluesOnTap || cluesUsed;       // once a clue was used, the badge is gone: clues keep coming
+        if (clueShown) {
+            cluesUsed = true;
+            return clue;
+        }
+        return new MysteryClue(clue.getClueId(), HIDDEN_CLUE_TEXT, clue.getAssociatedAnimalName());
     }
+
+    /** NEW CODE: reveals the real clue of the tapped animal. Counts as using a clue (forfeits the No-Clue badge). */
+    public String revealClue() {
+        requireActiveBiome();
+        Animal target = currentBiome.getBiomeMystery().getTargetAnimal();
+        if (target == null) throw new IllegalStateException("No animal selected.");
+        clueShown = true;
+        cluesUsed = true;
+        return target.getClue().getHintText();
+    }
+
+    public boolean isClueShown() { return clueShown; }       // NEW CODE: real clue delivered for the current tap
+    public boolean hasUsedClues() { return cluesUsed; }      // NEW CODE: any clue delivered during this run
 
     public List<String> getCurrentChoices() {
         requireActiveBiome();
@@ -246,35 +315,67 @@ public class GameManager {
         Animal target = mystery.getTargetAnimal();
 
         if (!mystery.verifyGuess(guess)) {
-            return new GuessResult(false, null, mystery.getFoundCount(), mystery.getTotalCount(), false, null);
+            wrongGuesses++; // NEW CODE
+            return new GuessResult(false, null, mystery.getFoundCount(), mystery.getTotalCount(), false, null, List.of());
         }
+        clueShown = false; // NEW CODE: the tap is over
 
-        Achievement earned = null;
+        Achievement clearBadge = null;                        // NEW CODE
+        List<Achievement> newBadges = List.of();              // NEW CODE
         boolean completed = mystery.allCluesFound();
         if (completed) {
             try {
-                earned = handleBiomeCompletion();
+                newBadges = awardCompletionBadges();          // NEW CODE (was: earned = handleBiomeCompletion();)
+                clearBadge = currentPlayer.findAchievement(clearBadgeName(currentBiome.getBiomeName())).orElse(null);
             } catch (InsufficientCluesException e) {
                 throw new IllegalStateException(e);   // cannot happen: allCluesFound() was true
             }
         }
-        return new GuessResult(true, target, mystery.getFoundCount(), mystery.getTotalCount(), completed, earned);
+        return new GuessResult(true, target, mystery.getFoundCount(), mystery.getTotalCount(), completed,
+                clearBadge, newBadges);
     }
 
-    /** Awards the badge, marks progress, unlocks the next biome and saves. */
+    /**
+     * Awards the Clear badge, marks progress, unlocks the next biome and saves.
+     * NEW CODE: returns the biome's Clear badge (a replay returns the one the player already owns);
+     * the No-Clue badge is awarded too when the run was clue-free.
+     */
     public Achievement handleBiomeCompletion() throws InsufficientCluesException {
+        awardCompletionBadges();
+        return currentPlayer.findAchievement(clearBadgeName(currentBiome.getBiomeName())).orElseThrow();
+    }
+
+    /** NEW CODE: the actual completion logic. @return the badges newly awarded by this completion. */
+    private List<Achievement> awardCompletionBadges() throws InsufficientCluesException {
         requireActiveBiome();
         MysteryGame mystery = currentBiome.getBiomeMystery();
         if (!mystery.allCluesFound()) {
             throw new InsufficientCluesException(mystery.getFoundCount(), mystery.getTotalCount());
         }
 
-        Achievement badge = new Achievement(
-                currentBiome.getBiomeName() + "_badge",
-                "Solved every mystery in " + currentBiome.getBiomeName(),
-                "images/badges/" + currentBiome.getBiomeName() + ".png",
-                LocalDate.now());
-        currentPlayer.addAchievement(badge);
+        String biomeName = currentBiome.getBiomeName();
+        List<Achievement> earned = new ArrayList<>();
+
+        // Badge 1: completing the mystery game
+        if (!currentPlayer.hasAchievement(clearBadgeName(biomeName))) {
+            Achievement badge = new Achievement(
+                    clearBadgeName(biomeName),
+                    "Solved every mystery in " + biomeName,
+                    "images/badges/" + biomeName + ".png",
+                    LocalDate.now());
+            currentPlayer.addAchievement(badge);
+            earned.add(badge);
+        }
+        // Badge 2: completing it without any clue being delivered
+        if (!cluesUsed && !currentPlayer.hasAchievement(noClueBadgeName(biomeName))) {
+            Achievement badge = new Achievement(
+                    noClueBadgeName(biomeName),
+                    "Solved every mystery in " + biomeName + " without using a clue",
+                    "images/badges/" + biomeName + "_no_clue.png",
+                    LocalDate.now());
+            currentPlayer.addAchievement(badge);
+            earned.add(badge);
+        }
         currentPlayer.markBiomeCompleted(currentBiomeIndex);
 
         if (currentBiomeIndex + 1 < allBiomes.size()) {
@@ -286,7 +387,7 @@ public class GameManager {
         } catch (IOException e) {
             throw new UncheckedIOException("Could not save progress", e);
         }
-        return badge;
+        return earned;
     }
 
     /**
@@ -299,6 +400,7 @@ public class GameManager {
             currentBiome = null;
             currentBiomeIndex = -1;
         }
+        resetRunState(); // NEW CODE
     }
 
     // ---------------------------------------------------------- persistence
@@ -344,17 +446,109 @@ public class GameManager {
             currentPlayer.markBiomeCompleted(index);
             if (index + 1 < allBiomes.size()) allBiomes.get(index + 1).unlockBiome();
 
-            String badgeName = biome.getBiomeName() + "_badge";
+            String badgeName = clearBadgeName(biome.getBiomeName()); // NEW CODE (was: biome.getBiomeName() + "_badge")
             LocalDate date = LocalDate.parse(props.getProperty("badgeDate." + badgeName, LocalDate.now().toString()));
             currentPlayer.addAchievement(new Achievement(badgeName,
                     "Solved every mystery in " + biome.getBiomeName(),
                     "images/badges/" + biome.getBiomeName() + ".png", date));
+
+            // NEW CODE: restore the No-Clue badge when the save contains one
+            String noClueDate = props.getProperty("badgeDate." + noClueBadgeName(biome.getBiomeName()));
+            if (noClueDate != null) {
+                currentPlayer.addAchievement(new Achievement(noClueBadgeName(biome.getBiomeName()),
+                        "Solved every mystery in " + biome.getBiomeName() + " without using a clue",
+                        "images/badges/" + biome.getBiomeName() + "_no_clue.png", parseDateOrToday(noClueDate)));
+            }
         }
     }
 
     private Path saveFile() {
-        String safe = currentPlayer.getUsername().replaceAll("[^a-zA-Z0-9_-]", "_");
+        return saveFileFor(currentPlayer.getUsername()); // NEW CODE (rule moved to saveFileFor)
+    }
+
+    // NEW CODE
+    private Path saveFileFor(String username) {
+        String safe = username.replaceAll("[^a-zA-Z0-9_-]", "_");
         return saveDirectory.resolve(safe + ".save");
+    }
+
+    // NEW CODE
+    private static LocalDate parseDateOrToday(String text) {
+        try {
+            return LocalDate.parse(text);
+        } catch (DateTimeParseException e) {
+            return LocalDate.now();
+        }
+    }
+
+    // NEW CODE: renaming - UserProfile validates the name, the save file follows the new name
+    /**
+     * Renames the player and moves the save file along with it.
+     * @return false when the name did not change
+     * @throws IllegalArgumentException if the name is blank/too long or already belongs to another saved player
+     */
+    public boolean renamePlayer(String newName) throws IOException {
+        requireInitialized();
+        String candidate = UserProfile.validateUsername(newName);
+        if (candidate.equals(currentPlayer.getUsername())) return false;
+
+        Path oldFile = saveFile();
+        Path newFile = saveFileFor(candidate);
+        boolean sameFile = oldFile.equals(newFile);     // e.g. "a b" and "a_b" map to one file
+        if (!sameFile && Files.exists(newFile)) {
+            throw new IllegalArgumentException("Another player already uses the name '" + candidate + "'.");
+        }
+        currentPlayer.setUsername(candidate);
+        if (!currentPlayer.getUserProgress().isEmpty()) saveProgress();   // a brand-new profile has nothing to write
+        if (!sameFile) Files.deleteIfExists(oldFile);
+        return true;
+    }
+
+    // ------------------------------------------------------------ badge rules (NEW CODE)
+
+    public static String clearBadgeName(String biomeName) { return biomeName + "_badge"; }
+    public static String noClueBadgeName(String biomeName) { return biomeName + "_no_clue_badge"; }
+
+    public boolean hasClearBadge(int biomeIndex) {
+        requireInitialized();
+        return currentPlayer.hasAchievement(clearBadgeName(allBiomes.get(biomeIndex).getBiomeName()));
+    }
+
+    public boolean hasNoClueBadge(int biomeIndex) {
+        requireInitialized();
+        return currentPlayer.hasAchievement(noClueBadgeName(allBiomes.get(biomeIndex).getBiomeName()));
+    }
+
+    public int getBadgeCount(int biomeIndex) {
+        return (hasClearBadge(biomeIndex) ? 1 : 0) + (hasNoClueBadge(biomeIndex) ? 1 : 0);
+    }
+
+    public BiomeStatus getBiomeStatus(int biomeIndex) {
+        requireInitialized();
+        if (!currentPlayer.getUserProgress().contains(biomeIndex)) {
+            return allBiomes.get(biomeIndex).isLocked() ? BiomeStatus.LOCKED : BiomeStatus.UNLOCKED;
+        }
+        return hasNoClueBadge(biomeIndex) ? BiomeStatus.PERFECT : BiomeStatus.COMPLETED;
+    }
+
+    // ------------------------------------------------- run queries for the UI (NEW CODE)
+
+    public String getMysteryTitle() { requireActiveBiome(); return currentBiome.getBiomeMystery().getMysteryTitle(); }
+    public int getFoundCount() { requireActiveBiome(); return currentBiome.getBiomeMystery().getFoundCount(); }
+    public int getTotalCount() { requireActiveBiome(); return currentBiome.getBiomeMystery().getTotalCount(); }
+    public boolean isAnimalFound(String animalName) {
+        requireActiveBiome();
+        return currentBiome.getBiomeMystery().isAnimalFound(animalName);
+    }
+    public int getRoundCount() { requireActiveBiome(); return currentBiome.getBiomeMystery().getRoundCount(); }
+    public int getSolvedRoundCount() { requireActiveBiome(); return currentBiome.getBiomeMystery().getSolvedRoundCount(); }
+    public int getWrongGuessCount() { return wrongGuesses; }
+
+    private void resetRunState() {
+        cluesOnTap = true;
+        cluesUsed = false;
+        clueShown = false;
+        wrongGuesses = 0;
     }
 
     // ------------------------------------------------------------ accessors
