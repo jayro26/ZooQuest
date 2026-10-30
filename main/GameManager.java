@@ -19,10 +19,142 @@ public class GameManager {
     public static final int BIOME_COUNT = 3;
     public static final int ANIMALS_PER_BIOME = 10;
 
-    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // NEW CODE: Jungle, Safari, Aquatic
-
-    private static final String[] NUMBER_WORDS =
-            {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
+    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; 
+    private static final String[] BIOME_NAMES = {"Jungle", "Safari", "Aqua"};
+    private static final String[] BIOME_DESCRIPTIONS = {"Description 1", "Description 2", "Description 3"};
+  
+    // Format per animal: { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
+    private static final String[][][] ANIMAL_DATA = {
+    // Biome 0: Jungle ('J') - 10 Animals
+    {
+        {"Jaguar", "Panthera onca", "Carnivore", "Near Threatened",
+         "Stalks prey silently through dense undergrowth",
+         "Powerful jaws and rosette-patterned camouflage coat",
+         "I am the largest cat in the Americas and love to swim."},
+        {"Toucan", "Ramphastos toco", "Omnivore", "Least Concern",
+         "Hops between canopy branches plucking fruit",
+         "Oversized colorful bill that regulates body heat",
+         "My giant bright beak is lightweight and made of keratin."},
+        {"Animal 3", "Species 3", "Diet 3", "Status 3",
+         "Behaviour 3",
+         "Unique Feature",
+         "CLue 3"},
+        {"Animal 4", "Species 4", "Diet 4", "Status 4",
+         "Behaviour 4",
+         "Unique Feature 4",
+         "CLue 4"},
+        {"Animal 5", "Species 5", "Diet 5", "Status 5",
+         "Behaviour 5",
+         "Unique Feature 5",
+         "CLue 5"},
+        {"Animal 6", "Species 6", "Diet 6", "Status 6",
+         "Behaviour 6",
+         "Unique Feature 6",
+         "CLue 6"},
+        {"Animal 7", "Species 7", "Diet 7", "Status 7",
+         "Behaviour 7",
+         "Unique Feature 7",
+         "CLue 7"},
+        {"Animal 8", "Species 8", "Diet 8", "Status 8",
+         "Behaviour 8",
+         "Unique Feature 8",
+         "CLue 8"},
+        {"Animal 9", "Species 9", "Diet 9", "Status 9",
+         "Behaviour 9",
+         "Unique Feature 9",
+         "CLue 9"},
+        {"Animal 10", "Species 10", "Diet 10", "Status 10",
+         "Behaviour 10",
+         "Unique Feature 10",
+         "CLue 10"},
+    },
+    // Biome 1: Safari ('S') - 10 Animals
+    {
+        {"African Lion", "Panthera leo", "Carnivore", "Vulnerable",
+         "Rests in prides during the heat and hunts at dusk",
+         "Majestic mane on males and a roar heard 5 miles away",
+         "I live in social prides and am known as the king of beasts."},
+        {"Animal 3", "Species 3", "Diet 3", "Status 3",
+         "Behaviour 3",
+         "Unique Feature",
+         "CLue 3"},
+        {"Animal 4", "Species 4", "Diet 4", "Status 4",
+         "Behaviour 4",
+         "Unique Feature 4",
+         "CLue 4"},
+        {"Animal 5", "Species 5", "Diet 5", "Status 5",
+         "Behaviour 5",
+         "Unique Feature 5",
+         "CLue 5"},
+        {"Animal 6", "Species 6", "Diet 6", "Status 6",
+         "Behaviour 6",
+         "Unique Feature 6",
+         "CLue 6"},
+        {"Animal 7", "Species 7", "Diet 7", "Status 7",
+         "Behaviour 7",
+         "Unique Feature 7",
+         "CLue 7"},
+        {"Animal 8", "Species 8", "Diet 8", "Status 8",
+         "Behaviour 8",
+         "Unique Feature 8",
+         "CLue 8"},
+        {"Animal 9", "Species 9", "Diet 9", "Status 9",
+         "Behaviour 9",
+         "Unique Feature 9",
+         "CLue 9"},
+        {"Animal 10", "Species 10", "Diet 10", "Status 10",
+         "Behaviour 10",
+         "Unique Feature 10",
+         "CLue 10"},
+        {"Animal 11", "Species 11", "Diet 11", "Status 11",
+         "Behaviour 11",
+         "Unique Feature 11",
+         "CLue 11"},
+    },
+    // Biome 2: Aquatic ('A') - 10 Animals
+    {
+        {"Bottlenose Dolphin", "Tursiops truncatus", "Carnivore", "Least Concern",
+         "Communicates with clicks and leaps across waves",
+         "High intelligence and built-in echolocation sonar",
+         "I breathe air through a blowhole and use sonar to hunt fish."},
+        {"Animal 3", "Species 3", "Diet 3", "Status 3",
+         "Behaviour 3",
+         "Unique Feature",
+         "CLue 3"},
+        {"Animal 4", "Species 4", "Diet 4", "Status 4",
+         "Behaviour 4",
+         "Unique Feature 4",
+         "CLue 4"},
+        {"Animal 5", "Species 5", "Diet 5", "Status 5",
+         "Behaviour 5",
+         "Unique Feature 5",
+         "CLue 5"},
+        {"Animal 6", "Species 6", "Diet 6", "Status 6",
+         "Behaviour 6",
+         "Unique Feature 6",
+         "CLue 6"},
+        {"Animal 7", "Species 7", "Diet 7", "Status 7",
+         "Behaviour 7",
+         "Unique Feature 7",
+         "CLue 7"},
+        {"Animal 8", "Species 8", "Diet 8", "Status 8",
+         "Behaviour 8",
+         "Unique Feature 8",
+         "CLue 8"},
+        {"Animal 9", "Species 9", "Diet 9", "Status 9",
+         "Behaviour 9",
+         "Unique Feature 9",
+         "CLue 9"},
+        {"Animal 10", "Species 10", "Diet 10", "Status 10",
+         "Behaviour 10",
+         "Unique Feature 10",
+         "CLue 10"},
+        {"Animal 11", "Species 11", "Diet 11", "Status 11",
+         "Behaviour 11",
+         "Unique Feature 11",
+         "CLue 11"},
+    }
+};
 
     private final List<Biome> allBiomes = new ArrayList<>();
     private final Path saveDirectory;
@@ -50,24 +182,34 @@ public class GameManager {
     }
 
     private void buildBiomes() {
-        allBiomes.clear();
-        for (int b = 0; b < BIOME_COUNT; b++) {
-            String biomeName = "biome_" + NUMBER_WORDS[b];
-            Biome biome = new Biome(biomeName, "Description of " + biomeName, b != 0); // only the first starts unlocked
-            for (int a = 0; a < ANIMALS_PER_BIOME; a++) {
-                String animalName = "animal_" + NUMBER_WORDS[a];
-                MysteryClue clue = new MysteryClue(biomeName + "_clue_" + (a + 1),
-                        "Clue for " + animalName + " in " + biomeName, animalName);
-                // NEW CODE (replaces the `new Animal(...)` call, which cannot compile: Animal is abstract)
-                Animal animal = Animal.create(BIOME_TYPES[b], animalName, "species_" + NUMBER_WORDS[a], biomeName,
-                        "diet_" + NUMBER_WORDS[a], "status_" + NUMBER_WORDS[a],
-                        "behaviour_" + NUMBER_WORDS[a], "feature_" + NUMBER_WORDS[a]);
-                animal.setAssociatedClue(clue); // NEW CODE
-                biome.addAnimal(animal);
-            }
-            allBiomes.add(biome);
+    allBiomes.clear();
+    for (int b = 0; b < BIOME_COUNT; b++) {
+        String biomeName = BIOME_NAMES[b];
+        Biome biome = new Biome(biomeName, BIOME_DESCRIPTIONS[b], b != 0);
+
+        for (int a = 0; a < ANIMALS_PER_BIOME; a++) {
+            String[] data = ANIMAL_DATA[b][a];
+            String animalName = data[0];
+            String species    = data[1];
+            String diet       = data[2];
+            String status     = data[3];
+            String behaviour  = data[4];
+            String feature    = data[5]; // Shown in getDescription()
+            String clueText   = data[6];
+
+            MysteryClue clue = new MysteryClue(
+                    biomeName + "_clue_" + (a + 1), clueText, animalName);
+
+            Animal animal = Animal.create(
+                    BIOME_TYPES[b], animalName, species, biomeName,
+                    diet, status, behaviour, feature);
+
+            animal.setAssociatedClue(clue);
+            biome.addAnimal(animal);
         }
+        allBiomes.add(biome);
     }
+}
 
     // ------------------------------------------------------------ gameplay
 
