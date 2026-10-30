@@ -10,5 +10,5 @@ Many children cannot visit physical zoos due to geographic distance, high travel
 
 <h2>Target Users:</h2> 
 
-1. Children - They can use this system to explore virtual zoos and their biomes, complete the task (find the animal), and learn their habitat, diet, and behavior.
-2. Teachers/Parents - Use the System as an interactive learning activity to introduce children to animals and wildlife. 
+1.) **Children** - They can use this system to explore virtual zoos and their biomes, complete the task (find the animal), and learn their habitat, diet, and behavior.
+2.) **Teachers/Parents** - Use the System as an interactive learning activity to introduce children to animals and wildlife. 
