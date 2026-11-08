@@ -6,8 +6,12 @@ import java.nio.file.Path;
 public class ZooQuest {
     public static void main(String[] args) throws Exception {
         // NEW CODE: interactive menu is the default; pass "--demo" to run the original scripted demo below
-        if (args.length == 0 || !args[0].equals("--demo")) {
+        if (args.length > 0 && args[0].equals("--console")) {
             new MenuCoordinator(Path.of("saves")).run();
+            return;
+        }
+        if (args.length == 0 || !args[0].equals("--demo")) {
+            ZooQuestGUI.main(args);   // opens the window and returns; the GUI keeps the program alive
             return;
         }
 
