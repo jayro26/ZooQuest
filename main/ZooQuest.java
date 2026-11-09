@@ -1,6 +1,7 @@
 package main;
 
 import java.nio.file.Path;
+import javax.swing.SwingUtilities; // NEW CODE
 
 /** Console demo that exercises GameManager the way the UI will. */
 public class ZooQuest {
@@ -11,7 +12,8 @@ public class ZooQuest {
             return;
         }
         if (args.length == 0 || !args[0].equals("--demo")) {
-            ZooQuestGUI.main(args);   // opens the window and returns; the GUI keeps the program alive
+            // NEW CODE: ZooQuest is the only entry point - ZooQuestGUI no longer has its own main()
+            SwingUtilities.invokeLater(() -> new ZooQuestGUI().setVisible(true));
             return;
         }
 

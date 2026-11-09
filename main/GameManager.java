@@ -213,6 +213,9 @@ public class GameManager {
     /** NEW CODE: what the biome list shows for a biome. PERFECT = both badges earned. */
     public enum BiomeStatus { LOCKED, UNLOCKED, COMPLETED, PERFECT }
 
+    /** NEW CODE: one entry of the saved-player list (start screen): name + a short progress summary. */
+    public record SavedPlayer(String username, int completedBiomes, int badges) { }
+
     public GameManager(Path saveDirectory) {
         this.saveDirectory = saveDirectory;
     }
@@ -526,9 +529,85 @@ public class GameManager {
             throw new IllegalArgumentException("Another player already uses the name '" + candidate + "'.");
         }
         currentPlayer.setUsername(candidate);
-        if (!currentPlayer.getUserProgress().isEmpty()) saveProgress();   // a brand-new profile has nothing to write
+        // NEW CODE (was: only when there was progress): a registered player has a save file even with no progress
+        if (!currentPlayer.getUserProgress().isEmpty() || Files.exists(oldFile)) saveProgress();
         if (!sameFile) Files.deleteIfExists(oldFile);
         return true;
+    }
+
+    // ------------------------------------------------------------ saved players (NEW CODE)
+    // Every player owns exactly one save file (saves/<name>.save) holding their completed biomes and badges.
+    // Loading one player never touches another player's file.
+
+    /** All players that have a save file, sorted by name. Never throws; an unreadable file is skipped. */
+    public List<SavedPlayer> listSavedPlayers() {
+        if (!Files.isDirectory(saveDirectory)) return List.of();
+        List<SavedPlayer> players = new ArrayList<>();
+        try (var files = Files.list(saveDirectory)) {
+            for (Path file : (Iterable<Path>) files::iterator) {
+                String fileName = file.getFileName().toString();
+                if (!fileName.endsWith(".save") || !Files.isRegularFile(file)) continue;
+
+                Properties props = new Properties();
+                try (InputStream in = Files.newInputStream(file)) {
+                    props.load(in);
+                } catch (IOException e) {
+                    continue;
+                }
+                String name = props.getProperty("username", "").trim();
+                if (name.isEmpty()) name = fileName.substring(0, fileName.length() - ".save".length());
+                players.add(new SavedPlayer(name, countCompletedBiomes(props), countBadges(props)));
+            }
+        } catch (IOException e) {
+            return List.of();
+        }
+        players.sort(Comparator.comparing((SavedPlayer p) -> p.username().toLowerCase()));
+        return List.copyOf(players);
+    }
+
+    /**
+     * Registers a new player: starts a fresh profile and writes its (empty) save file right away,
+     * so the player shows up in listSavedPlayers() next time the game starts.
+     * @throws IllegalArgumentException if the name is blank/too long or already belongs to a saved player
+     */
+    public void createPlayer(String username) throws IOException {
+        String name = UserProfile.validateUsername(username);
+        boolean taken = Files.exists(saveFileFor(name))
+                || listSavedPlayers().stream().anyMatch(p -> p.username().equalsIgnoreCase(name));
+        if (taken) {
+            throw new IllegalArgumentException("The name '" + name + "' is already taken by another player.");
+        }
+        initializeGame(name);
+        saveProgress();
+    }
+
+    /**
+     * Switches to an existing player and restores their biomes and achievements.
+     * @throws IllegalArgumentException if no save exists for that name
+     */
+    public void loadPlayer(String username) {
+        String name = UserProfile.validateUsername(username);
+        if (!Files.exists(saveFileFor(name))) {
+            throw new IllegalArgumentException("There is no saved player named '" + name + "'.");
+        }
+        initializeGame(name);
+    }
+
+    private static int countCompletedBiomes(Properties props) {
+        Set<Integer> done = new HashSet<>();
+        for (String token : props.getProperty("completedBiomes", "").split(",")) {
+            try {
+                int index = Integer.parseInt(token.trim());
+                if (index >= 0 && index < BIOME_COUNT) done.add(index);
+            } catch (NumberFormatException ignored) {
+                // blank or corrupt token
+            }
+        }
+        return done.size();
+    }
+
+    private static int countBadges(Properties props) {
+        return (int) props.stringPropertyNames().stream().filter(k -> k.startsWith("badgeDate.")).count();
     }
 
     // ------------------------------------------------------------ badge rules (NEW CODE)

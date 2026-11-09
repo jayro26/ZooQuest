@@ -168,8 +168,4 @@ public class ZooQuestGUI extends JFrame {
         }
         return null;
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ZooQuestGUI().setVisible(true));
-    }
 }
