@@ -1,7 +1,7 @@
 package main;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /** First screen: title + name entry. Mirrors MenuCoordinator.startSession(). */
 public class StartPanel extends BackgroundPanel {
@@ -10,18 +10,8 @@ public class StartPanel extends BackgroundPanel {
     private final JLabel error = new JLabel(" ", SwingConstants.CENTER);
 
     public StartPanel(ZooQuestGUI app) {
-        super("jungle_scene.png");
+        super(" ");
         JPanel card = ZooQuestGUI.card(34);
-
-        JLabel title = new JLabel("ZOO QUEST");
-        title.setFont(new Font("SansSerif", Font.BOLD, 52));
-        title.setForeground(ZooQuestGUI.GOLD);
-        title.setAlignmentX(CENTER_ALIGNMENT);
-
-        JLabel sub = new JLabel("Find the hidden animals!");
-        sub.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        sub.setForeground(Color.WHITE);
-        sub.setAlignmentX(CENTER_ALIGNMENT);
 
         JLabel prompt = new JLabel("Enter your name (blank = " + DEFAULT_NAME + ")");
         prompt.setForeground(Color.WHITE);
@@ -36,7 +26,7 @@ public class StartPanel extends BackgroundPanel {
         error.setForeground(new Color(255, 140, 120));
         error.setAlignmentX(CENTER_ALIGNMENT);
 
-        JButton play = ZooQuestGUI.button("Let's Go!", new Color(46, 150, 80));
+        JButton play = ZooQuestGUI.button("Start", new Color(46, 150, 80));
         play.setAlignmentX(CENTER_ALIGNMENT);
         Runnable go = () -> {
             String name = nameField.getText();
@@ -51,10 +41,6 @@ public class StartPanel extends BackgroundPanel {
         play.addActionListener(e -> go.run());
         nameField.addActionListener(e -> go.run()); // Enter key
 
-        card.add(title);
-        card.add(Box.createVerticalStrut(6));
-        card.add(sub);
-        card.add(Box.createVerticalStrut(28));
         card.add(prompt);
         card.add(Box.createVerticalStrut(8));
         card.add(nameField);

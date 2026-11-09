@@ -70,7 +70,7 @@ public class UserProfile {
     }
 
     public String showProgress() {
-        return "Player: " + username + ", | Completed biomes: " + completedBiomes.size() + " | Achievements: "
+        return " Completed biomes: " + completedBiomes.size() + " | Achievements: "
                 + achievements.size();
     }
 

@@ -1,12 +1,12 @@
 package main;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 /**
  * Main window. Owns the single GameManager and a CardLayout that switches
@@ -83,7 +83,7 @@ public class ZooQuestGUI extends JFrame {
     }
 
     private JPanel placeholder(String title) {
-        BackgroundPanel p = new BackgroundPanel("jungle_scene.png");
+        BackgroundPanel p = new BackgroundPanel(" ");
         JPanel card = card(30);
         JLabel l = new JLabel(title + " (coming soon)", SwingConstants.CENTER);
         l.setForeground(Color.WHITE);

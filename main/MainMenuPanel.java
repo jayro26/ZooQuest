@@ -1,7 +1,7 @@
 package main;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /**
  * Main menu. Mirrors MenuCoordinator.mainMenu(): Start Game, Achievements, View
@@ -13,11 +13,11 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     private final JLabel progress = new JLabel("", SwingConstants.CENTER);
 
     public MainMenuPanel(ZooQuestGUI app) {
-        super("jungle_scene.png");
+        super(" ");
         this.app = app;
         JPanel card = ZooQuestGUI.card(34);
 
-        JLabel title = new JLabel("MAIN MENU");
+        JLabel title = new JLabel("Zoo Quest");
         title.setFont(new Font("SansSerif", Font.BOLD, 40));
         title.setForeground(ZooQuestGUI.GOLD);
         title.setAlignmentX(CENTER_ALIGNMENT);
