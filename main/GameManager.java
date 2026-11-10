@@ -29,165 +29,9 @@ public class GameManager {
     private static final String[] BIOME_DESCRIPTIONS = {"Description 1", "Description 2", "Description 3"};
     private static final String HIDDEN_CLUE_TEXT = "(clue hidden)"; // NEW CODE
 
-    // Format per animal: { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
-    private static final String[][][] ANIMAL_DATA = {
-    // Biome 0: Jungle ('J') - 10 Animals
-    {
-        {"Tiger", "Panthera tigris", "Carnivore", "Endangered",
-         "Ambushes prey alone and swims across rivers with ease",
-         "Orange coat with black stripes that are unique to every tiger",
-         "I am the biggest cat in the world and my stripes are like fingerprints."},
-
-        {"Gorilla", "Gorilla gorilla", "Herbivore", "Critically Endangered",
-         "Lives in a family troop led by a silverback",
-         "Silver-grey back fur on adult males and strong arms for knuckle-walking",
-         "I am the largest living primate and troop follows a silverback leader."},
-
-        {"Monkey", "Cebus capucinus", "Omnivore", "Varies by Species",
-         "Travles in noisy troops and grooms friends to bond",
-         "Long grasping tail that works like a fifth hand",
-         "I swing through the treetops using my tail and never travel alone"},
-
-        {"Eagle", "Harpia harpyja", "Carnivore", "Near Threatened",
-         "Hunts from a perch and snatches monkeys and sloths from the trees",
-         "Huge talons as big as a bear's claws and a crown of feathers",
-         "I rule the rainforest sky and my talons are as big as a bear's claws."},
-
-        {"Lemur", "Lemur catta", "Herbivore", "Endangered",
-         "Sunbathes in groups and scent-marks with its tail",
-         "Black-and-white ringed tail held high like a flag",
-         "I come from Madagascar and wave my striped tail like a flag"},
-
-        {"Koala", "Phascolarctos cinereus", "Herbivore", "Vulnerable",
-         "Sleeps 18-22 hours a day and spends most of its life alone",
-         "Fluffy round ears and fingerprints almost like a human's",
-         "I'm not a bear! I munch eucalyptus leaves and sleep most of the day."},
-
-        {"Deer", "Cervus elaphus", "Herbivore", "Varies by species",
-         "Most active at dawn and dusk; males clash antlers in rutting season",
-         "Antlers that fall off and regrow every year",
-         "I grow a new set of antlers every year and come out at sunrise and sunset."},
-
-        {"Parrot", "Ara macao", "Herbivore", "Many species threatened",
-         "Flocks together and copies the sounds it hears",
-         "Bright feathers and a strong curved beak for cracking nuts",
-         "I wear all the colors of the rainbow and can copy your voice."},
-
-        {"Capybara", "Hydrochoerus hydrochoerus", "Herbivore", "Least Concern",
-         "Semi-aquatic and lives in groups of up to about 20",
-         "Webbed feet and eyes and nose set high on its head for swimming",
-         "I am the world's largest rodent and I love a good swim."},
-
-        {"Komodo dragon", "Varanus komodoensis", "Carnivore", "Endangered",
-         "Ambushes prey alone, then tracks it after a venomous bite",
-         "Forked tongue that smells the air and a venomous bite",
-         "I am the largest lizard alive and I live on islands in Indonesia."},
-    },
-    // Biome 1: Safari ('S') - 10 Animals
-    {
-        {"Zebra", "Equus quagga", "Herbivore", "Near Threatened",
-         "Travels in herds, where moving stripes confuse predators",
-         "Black-and-white stripes that are unique to each zebra",
-         "No two of my stripe patterns are the same."},
-
-        {"Rhino", "Diceros bicornis", "Herbivore", "Critically Endangered",
-         "Lives alone with poor eyesight but sharp hearing and smell",
-         "Two horns made of keratin, the same stuff as your fingernails",
-         "My two horns are made of the same stuff as your fingernails."},
-
-        {"Hippopotamus", "Hippopotamus amphibius", "Herbivore", "Vulnerable",
-         "Rests in water by day and grazes on land at night",
-         "Enormous jaws and skin that oozes a red, sunscreen-like liquid",
-         "I soak in the river all day and come out at night to eat grass."},
-
-        {"Giraffe", "Giraffa camelopardalis", "Herbivore", "Endangered",
-         "Lives in loose herds and sleeps only in short naps",
-         "Tallest animal on land with a long dark tongue for grabbing leaves",
-         "I am the tallest animal on Earth and I eat the highest acacia leaves."},
-
-        {"Elephant", "Loxodonta africana", "Herbivore", "Vulnerable",
-         "Female-led herds with a famous memory",
-         "Trunk with about 40,000 muscles and huge fan-shaped ears",
-         "My trunk is my nose, my hand and my drinking straw all in one."},
-
-        {"Hyena", "Crocuta crocuta", "Omnivore", "Least Concern",
-         "Lives in female-led clans and makes laughing calls",
-         "Powerful jaws that can crush bones",
-         "I may sound like I'm laughing, but I'm the boss of my clan."},
-
-        {"Ostrich", "Struthio camelus", "Omnivore", "Least Concern",
-         "Cannot fly but runs up to about 70 km/h",
-         "Largest bird on Earth with enormous eyes",
-         "I can't fly, but I can outrun almost anything on the savanna."},
-
-        {"Buffalo", "Syncerus caffer", "Herbivore", "Near Threatened",
-         "Herds stand together to protect their calves from predators",
-         "Heavy curved horns that meet across the forehead",
-         "My herd always has my back, and my curved horns are heavy."},
-
-        {"Nile Crocodile", "Crocodylus niloticus", "Carnivore", "Least Concern",
-         "Basks in the sun and ambushes prey at the water's edge",
-         "Eyes and nostrils on top of its head so it can hide underwater",
-         "I float like a log in the river, then SNAP!"},
-
-        {"Vulture", "Gyps africanus", "Carnivore", "Critically Endangered",
-         "Soars on warm air currents and cleans up carcasses",
-         "Bald head that stays clean while feeding and very strong stomach acid",
-         "I'm nature's clean-up crew and I ride warm air high above the savanna."},
-    },
-    // Biome 2: Aquatic ('A') - 10 Animals
-    {
-        {"Tuna", "Thunnus thynnus", "Carnivore", "Varies (southern bluefin: Endangered)",
-         "Swims in fast schools and migrates across whole oceans",
-         "Torpedo-shaped body built for speed",
-         "I'm built like a torpedo and I cross entire oceans."},
-
-        {"Shark", "Carcharodon carcharias", "Carnivore", "Vulnerable",
-         "Ambushes seals from below and sometimes leaps out of the water",
-         "Rows of teeth that are replaced all through its life",
-         "I lose thousands of teeth in my life, but I always grow more."},
-
-        {"Whale", "Balaenoptera musculus", "Carnivore", "Endangered",
-         "Sings long, deep calls to communicate across the ocean",
-         "Largest animal ever with a heart the size of a small car",
-         "I am the largest animal on Earth and I sing songs across the sea."},
-
-        {"Penguin", "Aptenodytes forsteri", "Carnivore", "Near threatened",
-         "Males huddle together to keep the eggs warm",
-         "Flipper-like wings for swimming and thick, waterproof feathers",
-         "I can't fly, but I zoom underwater and dad keeps our egg warm."}, 
-
-        {"Swordfish", "Xiphias gladius", "Carnivore", "Least Concern",
-         "Slashes at prey with its bill and usually swims alone",
-         "Long, flat bill shaped like a sword",
-         "I swim alone and my long, flat bill is like a sword."},
-
-        {"Sea lion", "Zalophus californianus", "Carnivore", "Least Concern",
-         "Lives in noisy colonies and walks on its flippers",
-         "Visible ear flaps and front flippers that can turn to walk",
-         "I bark loudly and have little ear flaps, unlike seals."},
-
-        {"Dolphin", "Tursiops truncatus", "Carnivore", "Least concern",
-         "Hunts in pods and finds food using echolocation",
-         "Sleeps with half its brain awake and uses whistles as names",
-         "I click and whistle to find food and call my friends."},
-
-        {"Octupus", "Octupus vulgaris", "Carnivore", "Least Concern",
-         "Hides in crevices and changes color to disappear",
-         "Three hearts, blue blood and eight clever arms",
-         "I have eight arms, three hearts and I can change my color."},
-
-        {"Stringray", "Dasyatis americana", "Carnivore", "Varies by species",
-         "Hides under the sand and defends itself with a barbed tail",
-         "Flat, wing-like body with eyes on top of its head",
-         "I look like a flying carpet and I hide under the sand."},
-
-        {"Manta ray", "Mobula birostris", "Carnivore", "Endagered",
-         "Visits cleaning stations where small fish clean its skin",
-         "Wingspan up to about 7 meters and a big brain for a fish",
-         "My wings can stretch wider than a boat and I seat tiny plankton"},
-    }
-};
+    // NEW CODE: the animal descriptions (name, species, diet, status, behaviour, unique feature, clue hint)
+    // no longer live here. Each animal type owns its animals: see Jungle, Safari and Aquatic.
+    // Animal.createAnimalsFor(type, biomeName) returns them with their clues attached.
 
     private final List<Biome> allBiomes = new ArrayList<>();
     private final Path saveDirectory;
@@ -233,45 +77,24 @@ public class GameManager {
     }
 
     private void buildBiomes() {
-    allBiomes.clear();
-    for (int b = 0; b < BIOME_COUNT; b++) {
-        String biomeName = BIOME_NAMES[b];
-        String biomeDesc = BIOME_DESCRIPTIONS[b];
-        
-        Biome biome = Biome.create(BIOME_TYPES[b], biomeName, biomeDesc, b != 0);
-        
-        for (int a = 0; a < ANIMALS_PER_BIOME; a++) {
-            String[] data = ANIMAL_DATA[b][a];
-            String animalName    = data[0];
-            String species       = data[1];
-            String diet          = data[2];
-            String status        = data[3];
-            String behaviour     = data[4];
-            String uniqueFeature = data[5];
-            String clueHint      = data[6];
+        allBiomes.clear();
+        for (int b = 0; b < BIOME_COUNT; b++) {
+            String biomeName = BIOME_NAMES[b];
+            String biomeDesc = BIOME_DESCRIPTIONS[b];
 
-            MysteryClue clue = new MysteryClue(
-                    biomeName + "_clue_" + (a + 1),
-                    clueHint,
-                    animalName
-            );
+            Biome biome = Biome.create(BIOME_TYPES[b], biomeName, biomeDesc, b != 0);
 
-            Animal animal = Animal.create(
-                    biome.getAnimalTypeCode(),
-                    animalName,
-                    species,
-                    biomeName, // habitat
-                    diet,
-                    status,
-                    behaviour,
-                    uniqueFeature
-            );
-            animal.setAssociatedClue(clue);
-            biome.addAnimal(animal);
+            // NEW CODE (replaces the loop that copied rows of ANIMAL_DATA into Animal.create(...) and MysteryClue):
+            // the animal type that lives in this biome supplies its animals, each with its clue attached
+            List<Animal> animals = Animal.createAnimalsFor(biome.getAnimalTypeCode(), biomeName);
+            if (animals.size() != ANIMALS_PER_BIOME) {
+                throw new IllegalStateException(biomeName + " has " + animals.size()
+                        + " animals but ANIMALS_PER_BIOME is " + ANIMALS_PER_BIOME);
+            }
+            animals.forEach(biome::addAnimal);
+            allBiomes.add(biome);
         }
-        allBiomes.add(biome);
     }
-}
 
     // ------------------------------------------------------------ gameplay
 

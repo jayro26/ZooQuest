@@ -1,8 +1,5 @@
 package main;
 
-import main.ZooQuest.AnimalNotFoundException;
-import main.ZooQuest.ZoneLockedException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -12,6 +9,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
+import main.ZooQuest.AnimalNotFoundException;
+import main.ZooQuest.ZoneLockedException;
 
 /**
  * Interactive console front-end that connects every class of the project into the
@@ -82,14 +81,45 @@ public class MenuCoordinator {
         }
     }
 
+    /**
+     * NEW CODE: uses the same players as the GUI start screen. Saved players are listed; pick one by number,
+     * or type a name: a saved player's name loads that player, any other name creates a new player (saved
+     * right away, so they are listed next time - in the console and in the GUI).
+     */
     private void startSession() {
         while (true) {
-            String name = ask("Enter your name (blank = " + DEFAULT_NAME + "): ");
+            List<GameManager.SavedPlayer> saved = gm.listSavedPlayers();
+            String prompt = "Enter your name (blank = " + DEFAULT_NAME + "): ";
+            if (!saved.isEmpty()) {
+                out.println("\nSaved players:");
+                for (int i = 0; i < saved.size(); i++) {
+                    GameManager.SavedPlayer p = saved.get(i);
+                    out.printf("  %d) %s  (%d/%d biomes, %d %s)%n", i + 1, p.username(), p.completedBiomes(),
+                            GameManager.BIOME_COUNT, p.badges(), p.badges() == 1 ? "badge" : "badges");
+                }
+                prompt = "Enter a number to continue as that player, or type a new name (blank = "
+                        + DEFAULT_NAME + "): ";
+            }
+
+            String input = ask(prompt);
             try {
-                gm.initializeGame(name.isBlank() ? DEFAULT_NAME : name);   // GameManager restores any save
+                int pick = parseChoice(input, 1, saved.size());          // -1 when it is not a listed number
+                if (pick > 0) {
+                    gm.loadPlayer(saved.get(pick - 1).username());
+                } else {
+                    String name = input.isBlank() ? DEFAULT_NAME : input;
+                    GameManager.SavedPlayer existing = saved.stream()
+                            .filter(p -> p.username().equalsIgnoreCase(name)).findFirst().orElse(null);
+                    if (existing != null)
+                        gm.loadPlayer(existing.username());
+                    else
+                        gm.createPlayer(name);
+                }
                 break;
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {                         // e.g. longer than 20 characters
                 out.println(e.getMessage());
+            } catch (IOException e) {
+                out.println("Could not create the save file: " + e.getMessage());
             }
         }
         out.println("Welcome, " + gm.getCurrentPlayer().getUsername() + "!");

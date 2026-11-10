@@ -1,7 +1,7 @@
 package main;
 
 import java.nio.file.Path;
-import javax.swing.SwingUtilities; // NEW CODE
+import javax.swing.SwingUtilities;
 
 /** Console demo that exercises GameManager the way the UI will. */
 public class ZooQuest {
