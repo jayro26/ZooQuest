@@ -39,8 +39,8 @@ public class ZooQuestGUI extends JFrame {
             }
         });
         setContentPane(root);
-        setMinimumSize(new Dimension(800, 560));
-        setSize(1000, 680);
+        setMinimumSize(new Dimension(960, 540));
+        setSize(1280, 720);
         setLocationRelativeTo(null);
 
         register(START, new StartPanel(this));

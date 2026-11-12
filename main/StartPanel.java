@@ -29,7 +29,7 @@ public class StartPanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
     private final JPanel savedColumn = new JPanel(new BorderLayout());
 
     public StartPanel(ZooQuestGUI app) {
-        super(" ");
+        super("main_screen_background.png");
         this.app = app;
 
         // ---- left box: the name entry (same as the original start screen)

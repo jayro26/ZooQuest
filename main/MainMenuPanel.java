@@ -13,7 +13,7 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     private final JLabel progress = new JLabel("", SwingConstants.CENTER);
 
     public MainMenuPanel(ZooQuestGUI app) {
-        super(" ");
+        super("main_screen_background.png");
         this.app = app;
         JPanel card = ZooQuestGUI.card(34);
 
