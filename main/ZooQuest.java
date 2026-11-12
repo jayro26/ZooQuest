@@ -5,19 +5,21 @@ import javax.swing.SwingUtilities;
 
 /** Console demo that exercises GameManager the way the UI will. */
 public class ZooQuest {
+    // NEW CODE: ZooQuest is the only file that can be run. Keep ONE of the three options below active and
     public static void main(String[] args) throws Exception {
-        // NEW CODE: interactive menu is the default; pass "--demo" to run the original scripted demo below
-        if (args.length > 0 && args[0].equals("--console")) {
-            new MenuCoordinator(Path.of("saves")).run();
-            return;
-        }
-        if (args.length == 0 || !args[0].equals("--demo")) {
-            // NEW CODE: ZooQuest is the only entry point - ZooQuestGUI no longer has its own main()
-            SwingUtilities.invokeLater(() -> new ZooQuestGUI().setVisible(true));
-            return;
-        }
+        // 1) With the UI (the window)
+        SwingUtilities.invokeLater(() -> new ZooQuestGUI().setVisible(true));
 
-        Path saveDir = Path.of("saves");
+        // Console only
+        //new MenuCoordinator(GameManager.defaultSaveDirectory()).run();
+
+        // Scripted demo
+        // runDemo();
+    }
+
+    /** The original scripted demo (it used to be the body of main). Only runs when option 3 above is active. */
+    static void runDemo() throws Exception {
+        Path saveDir = GameManager.defaultSaveDirectory(); // NEW CODE (was: Path.of("saves"))
         GameManager gm = new GameManager(saveDir);
         gm.initializeGame("demo_player");
 

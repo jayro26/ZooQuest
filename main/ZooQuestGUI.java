@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -26,7 +25,7 @@ public class ZooQuestGUI extends JFrame {
     public static final Color GOLD = new Color(255, 214, 102);
     public static final Color PANEL_BG = new Color(20, 40, 28, 205);
 
-    private final GameManager gm = new GameManager(Path.of("saves"));
+    private final GameManager gm = new GameManager(GameManager.defaultSaveDirectory()); // NEW CODE (was: Path.of("saves"))
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 

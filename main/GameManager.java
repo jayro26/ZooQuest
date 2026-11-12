@@ -60,6 +60,28 @@ public class GameManager {
     /** NEW CODE: one entry of the saved-player list (start screen): name + a short progress summary. */
     public record SavedPlayer(String username, int completedBiomes, int badges) { }
 
+    /**
+     * NEW CODE: where the saves live - the "saves" folder inside the project's main folder (main/saves).
+     * Works whether the program is started from the project folder (which contains main/) or from inside main/.
+     * A "saves" folder left next to main/ by an earlier version is moved here once, so existing players are kept.
+     */
+    public static Path defaultSaveDirectory() {
+        Path here = Path.of("").toAbsolutePath();
+        boolean insideMain = here.getFileName() != null && here.getFileName().toString().equals("main");
+        Path target = insideMain ? here.resolve("saves") : here.resolve("main").resolve("saves");
+
+        Path legacy = here.resolve("saves");                         // the old location
+        if (!legacy.equals(target) && Files.isDirectory(legacy) && !Files.exists(target)) {
+            try {
+                Files.createDirectories(target.getParent());
+                Files.move(legacy, target);
+            } catch (IOException e) {
+                // could not move it: carry on with the new (empty) folder
+            }
+        }
+        return target;
+    }
+
     public GameManager(Path saveDirectory) {
         this.saveDirectory = saveDirectory;
     }
