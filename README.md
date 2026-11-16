@@ -33,9 +33,9 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
 
 | Name     | Role |
 | :--               | :-- |
-| Arias, Jayro J.     | <ul><li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li><li> Maintains the README, testing documentation, screenshots, and assists in checking the application's functionality. </li></ul> |
+| Arias, Jayro J.     | <ul><li> Develops the program flow and user interaction flow of the ZooQuest application. </li><li> Maintains the README, testing documentation, screenshots, and assists in checking the application's functionality. </li></ul> |
 | Carenan, Ahron Simeon D      | <ul><li> Coordinates the implementation of Java classes, methods, and OOP features </li><li> Develop the UI/UX design of the program </li></ul>|
-| De Lumen, Janelle H.      | <ul><li> Develops the program flow and user interaction flow of the ZooQuest application. </li><li> Helps plan the GUI navigation and gameplay sequence, including biome exploration and mystery game progression. </li></ul> |
+| De Lumen, Janelle H.      | <ul><li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li><li> Helps plan the GUI navigation and gameplay sequence, including biome exploration and mystery game progression. </li></ul> |
 
 
 ## 🧩 OOP Concepts Demonstrated
