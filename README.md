@@ -1,4 +1,4 @@
-# ZooQuest - An Interactive, Console-Based Zoo Exploration and Investigation Game
+# ZooQuest - An Interactive Zoo Exploration and Investigation Game
 
 ## 📙 Description
 
