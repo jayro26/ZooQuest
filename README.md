@@ -6,9 +6,9 @@ A Java-based application where the user can explore different zones in a zoo and
 
 ## 🔎 Problems being addressed
 
-Many children cannot visit physical zoos due to geographic distance, high travel costs, or lack of local facilities. This can also affect the teachers because they cannot organize field trips and need accessible digital tools to teach biodiversity. But children have easy access to the internet and gadgets to communicate with one another. At the same time, they only spend hours on gadgets consuming passive content (like short videos) and online games, which disconnects them from learning about nature and wildlife. 
+Many children cannot visit physical zoos due to geographic distance, high travel costs, or lack of local facilities. This can also affect the teachers because they cannot organize field trips and need accessible digital tools to teach biodiversity. But children have easy access to the internet and gadgets to communicate with one another. At the same time, they only spend hours on gadgets consuming passive content (like short videos) and online games, which disconnects them from learning about nature and wildlife. This also affects their parents because they struggle to manage excessive, unhealthy screen time at home. 
 
-This also affects their parents because they struggle to manage excessive, unhealthy screen time at home. This system will bridge the educational divide by granting every child, regardless of family income or location a free access to wildlife learning, while redirecting mindless screen time toward interactive mystery-solving that builds early environmental empathy and critical thinking skills.
+This system will bridge the educational divide by granting every child, regardless of family income or location a free access to wildlife learning, while redirecting mindless screen time toward interactive mystery-solving that builds early environmental empathy and critical thinking skills.
 
 ## 🎯 Target Users
 
