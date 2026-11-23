@@ -59,7 +59,7 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
     </td>
 </tr>
 <tr>
-    <td> De Luna, Janelle H. </td>
+    <td> De Lumen, Janelle H. </td>
     <td>
         <ul>
             <li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li>
