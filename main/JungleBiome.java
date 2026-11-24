@@ -14,8 +14,7 @@ public class JungleBiome extends Biome {
     public char getAnimalTypeCode() { return 'J'; }
 
     @Override
-    public String getBackgroundTemplate() { return "jungle_scene
-        .png"; }
+    public String getBackgroundTemplate() { return "jungle_scene.png"; }
 
     @Override
     public String[] getScenery() {
