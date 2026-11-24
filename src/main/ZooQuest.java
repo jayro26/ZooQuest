@@ -1,0 +1,61 @@
+package main;
+
+import java.nio.file.Path;
+import javax.swing.SwingUtilities;
+import main.UI.ZooQuestGUI;
+import main.exceptions.ZoneLockedException;
+
+public class ZooQuest {
+    public static void main(String[] args) throws Exception {
+        // With the UI (the window)
+        SwingUtilities.invokeLater(() -> new ZooQuestGUI().setVisible(true));
+
+        // Console only
+        //new MenuCoordinator(GameManager.defaultSaveDirectory()).run();
+
+        // Scripted demo
+        // runDemo();
+    }
+
+    // The original scripted demo (it used to be the body of main). Only runs when option 3 above is active.
+    static void runDemo() throws Exception {
+        Path saveDir = GameManager.defaultSaveDirectory();
+        GameManager gm = new GameManager(saveDir);
+        gm.initializeGame("demo_player");
+
+        // Locked biome check
+        try { gm.startBiome(1); } catch (ZoneLockedException e) { System.out.println("Blocked: " + e.getMessage()); }
+
+        // Play biome 0 halfway, then quit -> progress resets, nothing saved
+        gm.startBiome(0);
+        play(gm, 5);
+        System.out.println("Exiting mid-biome...");
+        gm.exitCurrentBiome();
+
+        // Replay biome 0 fully
+        gm.startBiome(0);
+        play(gm, 10);
+
+        // progress should be restored from disk
+        GameManager gm2 = new GameManager(saveDir);
+        gm2.initializeGame("demo_player");
+        System.out.println("Reloaded -> " + gm2.getCurrentPlayer().showProgress());
+        gm2.getAllBiomes().forEach(b -> System.out.println(b.getBiomeName() + " locked=" + b.isLocked()));
+
+        new AppCoordinator().run("zoo_ranger"); // full 3-biome playthrough
+    }
+
+    private static void play(GameManager gm, int rounds) throws Exception {
+        var animals = gm.getCurrentBiome().getAnimals();
+        for (int i = 0; i < rounds; i++) {
+            String name = animals.get(i).getName();
+            var clue = gm.selectHiddenAnimal(name);
+            String wrong = gm.getCurrentChoices().stream().filter(c -> !c.equals(name)).findFirst().get();
+            if (i == 0) System.out.println("Clue: " + clue.getHintText() + " | choices " + gm.getCurrentChoices()
+                    + " | wrong guess correct? " + gm.processGuess(wrong).correct());
+            var r = gm.processGuess(name);
+            System.out.println("Found " + r.foundCount() + "/" + r.totalCount() + " " + r.revealedAnimal().getName()
+                    + (r.biomeCompleted() ? " -> BIOME COMPLETE, badge: " + r.achievementEarned().viewBadge() : ""));
+        }
+    }
+}

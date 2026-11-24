@@ -1,7 +1,7 @@
 package main;
 
-import java.util.ArrayList; // NEW CODE
-import java.util.List; // NEW CODE
+import java.util.ArrayList; 
+import java.util.List; 
 
 public abstract class Animal {
 
@@ -34,12 +34,12 @@ public static Animal create(char type, String name, String species, String habit
       return new Safari(name, species, habitat, diet, status, behaviour, feature);
     case 'A':
       return new Aquatic(name, species, habitat, diet, status, behaviour, feature);
-    default: // added code
-      throw new IllegalArgumentException("Unknown animal type: " + type); // added code
+    default: 
+      throw new IllegalArgumentException("Unknown animal type: " + type); 
   }
 }
 
-// NEW CODE: each animal type owns its animals (see Jungle, Safari, Aquatic).
+// each animal type owns its animals (see Jungle, Safari, Aquatic).
 public static List<Animal> createAnimalsFor(char type, String biomeName) {
   switch (type) {
     case 'J':
@@ -53,7 +53,6 @@ public static List<Animal> createAnimalsFor(char type, String biomeName) {
   }
 }
 
-// NEW CODE: shared by Jungle, Safari and Aquatic. Turns their data rows into animals + clues.
 // Row format: { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
 static List<Animal> fromRows(char type, String biomeName, String[][] rows) {
   List<Animal> animals = new ArrayList<>();
@@ -72,7 +71,7 @@ static List<Animal> fromRows(char type, String biomeName, String[][] rows) {
 public abstract String getAnimalType();
 public abstract String getMovementStyle();
 public abstract String getSpriteTemplate();
-public abstract String getRevealMessage(); // NEW CODE: each type reacts to being found in its own way
+public abstract String getRevealMessage(); // each type reacts to being found in its own way
 
 public String displayBehaviour() {
   return behaviour + "\n\n[" + getAnimalType() + "] " + getMovementStyle();
@@ -86,7 +85,7 @@ public MysteryClue getClue() {
 }
 
 public void setAssociatedClue(MysteryClue c) {
-  // NEW CODE: the clue can be attached only once
+  // the clue can be attached only once
   if (c == null) throw new IllegalArgumentException("Clue cannot be null.");
   if (this.associatedClue != null) throw new IllegalStateException(name + " already has a clue.");
   this.associatedClue = c;

@@ -1,7 +1,7 @@
 package main;
 
 import java.util.*;
-import main.ZooQuest.AnimalNotFoundException;
+import main.exceptions.AnimalNotFoundException;
 
 public class MysteryGame {
     public static final int CHOICE_COUNT = 4;
@@ -11,7 +11,7 @@ public class MysteryGame {
     private final List<Animal> animals;
     private final Set<String> foundAnimals = new LinkedHashSet<>();
     private final Random random = new Random();
-    private final Map<String, Mystery> rounds = new LinkedHashMap<>(); // NEW CODE: one Mystery (answer tracker) per tapped animal
+    private final Map<String, Mystery> rounds = new LinkedHashMap<>(); // one Mystery (answer tracker) per tapped animal
 
     private Animal targetAnimal;               // animal the player tapped, awaiting a guess
     private List<String> currentChoices = List.of();
@@ -33,7 +33,7 @@ public class MysteryGame {
             throw new IllegalStateException(animal.getName() + " has already been found.");
         }
         targetAnimal = animal;
-        rounds.computeIfAbsent(animal.getName(), n -> new Mystery(mysteryTitle + " / " + n, n)); // NEW CODE
+        rounds.computeIfAbsent(animal.getName(), n -> new Mystery(mysteryTitle + " / " + n, n));
         currentChoices = buildChoices(animal);
         return animal.getClue();   // UI displays getHintText()
     }
@@ -53,7 +53,6 @@ public class MysteryGame {
     /** @return true if the guess is right. A right guess marks the animal found. */
     public boolean verifyGuess(String guess) {
         if (targetAnimal == null) throw new IllegalStateException("No animal selected.");
-        // NEW CODE (was: if (!targetAnimal.getName().equalsIgnoreCase(guess)) return false;) - same rule, now via Mystery
         if (!rounds.get(targetAnimal.getName()).checkAnswer(guess)) return false;
 
         targetAnimal.getClue().reveal();
@@ -65,12 +64,12 @@ public class MysteryGame {
     }
 
     public boolean allCluesFound() { return foundAnimals.size() == animals.size(); }
-    private void solveMystery() { isSolved = true; } // NEW CODE: private (was public) - only a real completion may solve it
+    private void solveMystery() { isSolved = true; }
 
     /** Wipes all in-biome progress. */
     public void reset() {
         foundAnimals.clear();
-        rounds.clear(); // NEW CODE
+        rounds.clear(); 
         animals.forEach(a -> a.getClue().hide());
         targetAnimal = null;
         currentChoices = List.of();
@@ -83,9 +82,9 @@ public class MysteryGame {
     public int getTotalCount() { return animals.size(); }
     public boolean isSolved() { return isSolved; }
     public Animal getTargetAnimal() { return targetAnimal; }
-    public List<String> getCurrentChoices() { return List.copyOf(currentChoices); } // NEW CODE (was: return currentChoices;)
-    public int getRoundCount() { return rounds.size(); } // NEW CODE: animals tapped so far
-    public int getSolvedRoundCount() { // NEW CODE
+    public List<String> getCurrentChoices() { return List.copyOf(currentChoices); }
+    public int getRoundCount() { return rounds.size(); }
+    public int getSolvedRoundCount() { 
         return (int) rounds.values().stream().filter(Mystery::isSolved).count();
     }
     public String getMysteryTitle() { return mysteryTitle; }

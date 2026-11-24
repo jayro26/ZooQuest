@@ -16,7 +16,7 @@ public abstract class Biome {
         this.isLocked = isLocked;
     }
 
-    // NEW CODE: factory - 'J' jungle, 'S' safari, 'A' aquatic
+    // factory - 'J' jungle, 'S' safari, 'A' aquatic
     public static Biome create(char type, String biomeName, String description, boolean isLocked) {
         switch (type) {
             case 'J':
@@ -30,7 +30,7 @@ public abstract class Biome {
         }
     }
 
-    // NEW CODE: what makes each zone type different (polymorphic)
+    // what makes each zone type different (polymorphic)
     public abstract String getBiomeType();
     /** The Animal.create(...) type code of the animals that live in this zone. */
     public abstract char getAnimalTypeCode();

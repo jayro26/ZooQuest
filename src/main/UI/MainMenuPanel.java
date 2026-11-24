@@ -1,7 +1,8 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import javax.swing.*;
+import main.UserProfile;
 
 /**
  * Main menu. Mirrors MenuCoordinator.mainMenu(): Start Game, Achievements, View

@@ -3,10 +3,10 @@ package main;
 import java.time.LocalDate;
 
 public class Achievement {
-    private final String badgeName; // NEW CODE: final
-    private final String description; // NEW CODE: final
-    private final String imagePath; // NEW CODE: final
-    private final LocalDate dateEarned; // NEW CODE: final
+    private final String badgeName;
+    private final String description; 
+    private final String imagePath; 
+    private final LocalDate dateEarned; 
 
     public Achievement(String bageName, String description, String imagePath, LocalDate dateEarned) {
         this.badgeName = bageName;
@@ -19,7 +19,7 @@ public class Achievement {
         return badgeName;
     }
 
-    // NEW CODE: read-only accessors for the remaining fields
+    // read-only accessors for the remaining fields
     public String getDescription() {
         return description;
     }

@@ -1,8 +1,5 @@
 package main;
 
-import main.ZooQuest.AnimalNotFoundException;
-import main.ZooQuest.InsufficientCluesException;
-import main.ZooQuest.ZoneLockedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +7,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import main.exceptions.AnimalNotFoundException;
+import main.exceptions.InsufficientCluesException; 
+import main.exceptions.ZoneLockedException; 
 
 /**
  * Orchestration layer. Drives a complete playthrough through the public APIs of the
@@ -94,7 +94,7 @@ public class AppCoordinator {
         System.out.println("Reloaded -> " + reloaded.getCurrentPlayer().showProgress());
     }
 
-    /** Plays the first {@code limit} animals of the current biome. */
+    /** Plays the first {code limit} animals of the current biome. */
     private void playRounds(int limit) throws AnimalNotFoundException {
         Biome biome = gm.getCurrentBiome();
         List<Animal> animals = biome.getAnimals();

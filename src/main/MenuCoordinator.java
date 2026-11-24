@@ -9,41 +9,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
-import main.ZooQuest.AnimalNotFoundException;
-import main.ZooQuest.ZoneLockedException;
+import main.exceptions.AnimalNotFoundException;
+import main.exceptions.ZoneLockedException; 
 
 /**
  * Interactive console front-end that connects every class of the project into the
  * application workflow:
- *
- * <pre>
- * Main menu ──┬─ 1. Start Game ── Biome list ── Animals section ── Mystery game ── 2 achievements ── next biome
- *             ├─ 2. Achievements
- *             └─ 3. View Profile (view / edit name, biomes unlocked)
- * </pre>
- *
- * This class is only a presentation layer: all rules (locking, clue mode, the two badges per biome, saving,
- * renaming) live in {@link GameManager}; the screen only asks it questions and prints the answers.
- *
- * Class responsibilities during the flow:
- * <ul>
- *   <li>{@link ZooQuest}      - entry point; launches this class</li>
- *   <li>{@link GameManager}   - the only gateway to game state (biomes, guesses, badges, saving)</li>
- *   <li>{@link UserProfile}, {@link Achievement} - profile + achievements screens</li>
- *   <li>{@link Biome} (+ {@link JungleBiome}/{@link SafariBiome}/{@link AquaticBiome}) - biome list and scenery</li>
- *   <li>{@link MysteryGame}, {@link MysteryClue}, {@link Mystery} - hidden-animal rounds, clues, per-round answers</li>
- *   <li>{@link Animal} (+ {@link Jungle}/{@link Safari}/{@link Aquatic}) - animals section and reveal messages</li>
- *   <li>{@link AppCoordinator} - scripted auto-playthrough, still reachable via {@code ZooQuest --demo}</li>
- * </ul>
- *
- * Achievements - two per biome:
- * <ol>
- *   <li><b>Clear badge</b>   - completing the mystery game.</li>
- *   <li><b>No-Clue badge</b> - completing it without any clue shown during the game. The player picks a clue
- *       mode when the game starts: with clues (shown on tap) or a no-clue challenge (clues hidden; revealing
- *       one forfeits the badge). Clues viewed in the animals section do not count.</li>
- * </ol>
- * A biome can be replayed while it still has an unearned badge.
  */
 public class MenuCoordinator {
 
@@ -82,7 +53,7 @@ public class MenuCoordinator {
     }
 
     /**
-     * NEW CODE: uses the same players as the GUI start screen. Saved players are listed; pick one by number,
+     * uses the same players as the GUI start screen. Saved players are listed; pick one by number,
      * or type a name: a saved player's name loads that player, any other name creates a new player (saved
      * right away, so they are listed next time - in the console and in the GUI).
      */
@@ -178,7 +149,7 @@ public class MenuCoordinator {
 
     /**
      * Runs one biome: animals section -> mystery game.
-     * @return index of the next biome to play immediately, or null to go back to the biome list.
+     * returns index of the next biome to play immediately, or null to go back to the biome list.
      */
     private Integer playBiome(int index) {
         try {
@@ -200,7 +171,7 @@ public class MenuCoordinator {
 
     /**
      * Lets the player inspect every animal and read its clue.
-     * @return true when the player chooses to proceed to the mystery game.
+     * returns true when the player chooses to proceed to the mystery game.
      */
     private boolean animalsSection(Biome biome, int biomeIndex, boolean reviewOnly) {
         List<Animal> animals = biome.getAnimals();
@@ -266,7 +237,7 @@ public class MenuCoordinator {
 
     // ======================================================== mystery game
 
-    /** @return index of the next biome to play immediately, or null to return to the biome list. */
+    /** returns index of the next biome to play immediately, or null to return to the biome list. */
     private Integer gameSection(int biomeIndex) {
         Biome biome = gm.getCurrentBiome();
         List<Animal> animals = biome.getAnimals();
@@ -299,7 +270,7 @@ public class MenuCoordinator {
         }
     }
 
-    /** Lets the player pick between normal play and the no-clue challenge (only while that badge is unearned). */
+    // Lets the player pick between normal play and the no-clue challenge (only while that badge is unearned).
     private void chooseClueMode(int biomeIndex) {
         showClues = true;
         if (gm.hasNoClueBadge(biomeIndex)) return;      // badge already earned: nothing to gain from hiding clues
@@ -311,7 +282,7 @@ public class MenuCoordinator {
         gm.setClueMode(showClues);                      // GameManager enforces the rule from here on
     }
 
-    /** Draws the game scene: background scenery (from the biome type), hidden animals and the interface bar. */
+    // Draws the game scene: background scenery (from the biome type), hidden animals and the interface bar.
     private void renderScene(Biome biome, List<Animal> animals) {
         out.println();
         for (String line : biome.getScenery()) out.println(line);
@@ -330,7 +301,7 @@ public class MenuCoordinator {
 
     /**
      * One round: tap -> (clue) + choices -> guess (repeat until right or the player backs out).
-     * @return true only if this round completed the whole biome.
+     * returns true only if this round completed the whole biome.
      */
     private boolean tapAnimal(int slot, Animal target) {
         MysteryClue clue;
@@ -395,7 +366,7 @@ public class MenuCoordinator {
         }
     }
 
-    /** Prints what GameManager awarded for this completion. */
+    // Prints what GameManager awarded for this completion. 
     private void reportBadges(GameManager.GuessResult result) {
         String clearName = GameManager.clearBadgeName(gm.getCurrentBiome().getBiomeName());
         boolean clearIsNew = false;
@@ -412,7 +383,7 @@ public class MenuCoordinator {
         }
     }
 
-    /** Shown after the final animal: continue to the (already unlocked) next biome or go back. */
+    // Shown after the final animal: continue to the (already unlocked) next biome or go back.
     private Integer completionMenu(int biomeIndex) {
         boolean hasNext = gm.hasNextBiome();
         String nextName = hasNext ? gm.getAllBiomes().get(biomeIndex + 1).getBiomeName() : null;
@@ -508,7 +479,7 @@ public class MenuCoordinator {
         }
     }
 
-    /** @return the number if it is within [min, max], otherwise -1. */
+    // returns the number if it is within [min, max], otherwise -1.
     private static int parseChoice(String raw, int min, int max) {
         try {
             int value = Integer.parseInt(raw);
