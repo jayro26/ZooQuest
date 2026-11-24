@@ -1,15 +1,16 @@
-package main;
+package main.UI;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import main.*;
 
 public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final JPanel grid = GuiKit.transparent(new GridLayout(2, 3, 18, 18));
 
     public AchievementsPanel(ZooQuestGUI app) {
-        super("jungle_scene.png");
+        super("main_screen_background.png");
         this.app = app;
         setLayout(new BorderLayout(0, 16));
         setBorder(BorderFactory.createEmptyBorder(26, 44, 30, 44));

@@ -1,11 +1,13 @@
 package main;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import main.UI.GuiImages;
 
 /**
  * Normalized clickable areas for the ten animal sprites in each biome scene.
@@ -13,9 +15,6 @@ import java.util.Properties;
  * Optional resources/hotspots/<biome>.properties files can override these defaults.
  */
 public final class Hotspots {
-    private static final String[] DIRS = {
-            "main/resources/", "resources/", "../resources/", "src/main/resources/"
-    };
     private static final Map<String, double[][]> CACHE = new HashMap<>();
 
     // Slightly irregular placements make the scenes feel like seek-and-find puzzles.
@@ -76,17 +75,16 @@ public final class Hotspots {
     }
 
     private static Properties load(String relativePath) {
-        for (String directory : DIRS) {
-            File file = new File(directory + relativePath);
-            if (!file.isFile()) continue;
-            Properties properties = new Properties();
-            try (FileInputStream input = new FileInputStream(file)) {
-                properties.load(input);
-                return properties;
-            } catch (IOException ignored) {
-                return null;
-            }
+        Path resourcesRoot = ProjectPaths.resourcesDirectory().toAbsolutePath().normalize();
+        Path file = resourcesRoot.resolve(relativePath).normalize();
+        if (!file.startsWith(resourcesRoot) || !Files.isRegularFile(file)) return null;
+
+        Properties properties = new Properties();
+        try (InputStream input = Files.newInputStream(file)) {
+            properties.load(input);
+            return properties;
+        } catch (IOException ignored) {
+            return null;
         }
-        return null;
     }
 }

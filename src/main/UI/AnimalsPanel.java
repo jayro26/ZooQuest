@@ -1,9 +1,10 @@
-package main;
+package main.UI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
+import main.*;
 
 /**
  * BIOME screen (layout PDF): title + Exit Biome, a grid of the 10 animals (tap one = details pop-up),

@@ -1,5 +1,6 @@
 package main;
 
+/** NEW CODE: safari zone, created by Biome.create('S', ...). */
 public class SafariBiome extends Biome {
 
     public SafariBiome(String biomeName, String description, boolean isLocked) {
@@ -13,7 +14,7 @@ public class SafariBiome extends Biome {
     public char getAnimalTypeCode() { return 'S'; }
 
     @Override
-    public String getBackgroundTemplate() { return "backgrounds/safari_background.png"; }
+    public String getBackgroundTemplate() { return "savannah_scene.png"; }
 
     @Override
     public String[] getScenery() {

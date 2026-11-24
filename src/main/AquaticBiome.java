@@ -1,6 +1,6 @@
 package main;
 
-/** aquatic zone, created by Biome.create('A', ...). */
+/** NEW CODE: aquatic zone, created by Biome.create('A', ...). */
 public class AquaticBiome extends Biome {
 
     public AquaticBiome(String biomeName, String description, boolean isLocked) {
@@ -14,7 +14,7 @@ public class AquaticBiome extends Biome {
     public char getAnimalTypeCode() { return 'A'; }
 
     @Override
-    public String getBackgroundTemplate() { return "backgrounds/aquatic_background.png"; }
+    public String getBackgroundTemplate() { return "ocean_scene.png"; }
 
     @Override
     public String[] getScenery() {

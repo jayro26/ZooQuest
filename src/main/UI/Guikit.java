@@ -1,12 +1,13 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import main.*;
 
 /** Shared Swing and Java2D helpers used throughout the ZooQuest screens. */
-public final class GuiKit {
+final class GuiKit {
     public static final Color GREEN = new Color(46, 150, 80);
     public static final Color ORANGE = new Color(200, 140, 30);
     public static final Color BLUE = new Color(50, 120, 190);

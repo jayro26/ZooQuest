@@ -1,7 +1,9 @@
-package main;
+package main.UI;
 
 import java.util.ArrayList;
 import java.util.List;
+import main.Achievement;
+import main.Biome;
 
 /** Small hand-over between screens (difficulty choice, result of the finished biome). */
 final class Flow {

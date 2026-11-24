@@ -2,13 +2,14 @@ package main.UI;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.InvalidPathException; 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import main.GameManager; 
-import main.ProjectPaths; 
+import main.*;
 
 /**
  * Main window. Owns the single GameManager and a CardLayout that switches
@@ -24,11 +25,16 @@ public class ZooQuestGUI extends JFrame {
     public static final String BIOMES = "biomes";
     public static final String ACHIEVEMENTS = "achievements";
     public static final String PROFILE = "profile";
+    public static final String ANIMALS = "animals";
+    public static final String GAME = "game";
+    public static final String COMPLETE = "complete";
+    public static final String UNLOCKED = "unlocked";
+
 
     public static final Color GOLD = new Color(255, 214, 102);
     public static final Color PANEL_BG = new Color(20, 40, 28, 205);
 
-    private final GameManager gm = new GameManager(GameManager.defaultSaveDirectory()); // (was: Path.of("saves"))
+    private final GameManager gm = new GameManager(GameManager.defaultSaveDirectory()); // NEW CODE (was: Path.of("saves"))
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
@@ -42,16 +48,20 @@ public class ZooQuestGUI extends JFrame {
             }
         });
         setContentPane(root);
-        setMinimumSize(new Dimension(960, 540));
-        setSize(1280, 720);
+        setMinimumSize(new Dimension(800, 560));
+        setSize(1000, 680);
         setLocationRelativeTo(null);
 
         register(START, new StartPanel(this));
         register(MENU, new MainMenuPanel(this));
         // Placeholders until the teammates plug in the real panels
-        register(BIOMES, placeholder("Biome Selection"));
-        register(ACHIEVEMENTS, placeholder("Achievements"));
-        register(PROFILE, placeholder("Profile"));
+        register(BIOMES, new BiomePanel(this));
+        register(ANIMALS, new AnimalsPanel(this));
+        register(GAME, new GamePanel(this));
+        register(COMPLETE, new CompletePanel(this));
+        register(UNLOCKED, new UnlockedPanel(this));
+        register(ACHIEVEMENTS, new AchievementsPanel(this));
+        register(PROFILE, new ProfilePanel(this));
         show(START);
     }
 
@@ -155,37 +165,57 @@ public class ZooQuestGUI extends JFrame {
     }
 
     /**
-     * Looks for the image in the usual resource folders; returns null if not found.
+     * Loads an image from the project's resources folder. The folder is resolved
+     * through ProjectPaths so this works when launched from the project root,
+     * src, src/main, or the older main/resources layout. A classpath lookup is
+     * also supported for packaged builds that include resources/ in the JAR.
      */
     public static BufferedImage loadImage(String fileName) {
-        // a blank name (screens pass " " when they want no picture, only the gradient) means "no picture".
-        // It is also not a valid file name on Windows, so it must not reach Path.resolve().
-        if (fileName == null || fileName.isBlank())
+        if (fileName == null || fileName.isBlank()) {
             return null;
+        }
 
-        // the resources folder inside src (src/resources), wherever the program is started from
+        // Accept either slash style, but always resolve the name inside resources.
+        String normalizedName = fileName.trim().replace('\\', '/');
+        while (normalizedName.startsWith("/")) {
+            normalizedName = normalizedName.substring(1);
+        }
+
+        final Path relativePath;
         try {
-            File inResources = ProjectPaths.resourcesDirectory().resolve(fileName).toFile();
-            if (inResources.exists()) {
-                try {
-                    return ImageIO.read(inResources);
-                } catch (IOException ignored) {
-                }
-            }
+            relativePath = Path.of(normalizedName).normalize();
         } catch (InvalidPathException ignored) {
-            // not a valid file name on this system: fall through to the older locations
+            return null;
         }
-        // the older locations, kept as a fallback
-        String[] dirs = { "main/resources/", "resources/", "../resources/", "src/main/resources/" };
-        for (String d : dirs) {
-            File f = new File(d + fileName);
-            if (f.exists()) {
-                try {
-                    return ImageIO.read(f);
-                } catch (IOException ignored) {
+
+        // Do not allow a resource name to escape the resources directory.
+        if (relativePath.isAbsolute() || relativePath.startsWith("..")) {
+            return null;
+        }
+
+        Path resourcesRoot = ProjectPaths.resourcesDirectory().toAbsolutePath().normalize();
+        Path imagePath = resourcesRoot.resolve(relativePath).normalize();
+        if (imagePath.startsWith(resourcesRoot) && Files.isRegularFile(imagePath)) {
+            try {
+                BufferedImage image = ImageIO.read(imagePath.toFile());
+                if (image != null) {
+                    return image;
                 }
+            } catch (IOException ignored) {
+                // Try the classpath copy below, if one is available.
             }
         }
+
+        String classpathName = "resources/" + relativePath.toString().replace('\\', '/');
+        try (InputStream input = ZooQuestGUI.class.getClassLoader()
+                .getResourceAsStream(classpathName)) {
+            if (input != null) {
+                return ImageIO.read(input);
+            }
+        } catch (IOException ignored) {
+            // A missing or unreadable optional image is handled by the caller's fallback.
+        }
+
         return null;
     }
 }

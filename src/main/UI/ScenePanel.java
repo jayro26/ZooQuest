@@ -1,8 +1,9 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
+import main.*;
 
 public class ScenePanel extends JPanel {
     private Biome biome;

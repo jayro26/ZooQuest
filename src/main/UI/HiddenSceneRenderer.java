@@ -1,4 +1,4 @@
-package main;
+package main.UI;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import main.*;
 
 /**
  * Builds the seek-and-find scene at paint time from the original biome artwork,
@@ -57,7 +58,10 @@ public final class HiddenSceneRenderer {
     }
 
     private static void drawAnimal(Graphics2D g, Animal animal, Rectangle bounds, boolean found) {
-        BufferedImage sprite = GuiImages.load(GuiImages.animalFile(animal));
+        BufferedImage sprite = found
+                ? GuiImages.load(GuiImages.animalFile(animal))
+                : GuiImages.load(GuiImages.hiddenAnimalFile(animal));
+        if (sprite == null) sprite = GuiImages.load(GuiImages.animalFile(animal));
         if (sprite == null) sprite = GuiImages.load(animal.getSpriteTemplate());
         if (sprite == null) return;
 

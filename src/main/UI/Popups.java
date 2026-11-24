@@ -1,9 +1,10 @@
-package main;
+package main.UI;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
+import javax.swing.*;
+import main.*;
 
 /** The two pop-ups of the layout PDF: animal details and "Choose Difficulty". Put them in an Overlay. */
 public final class Popups {

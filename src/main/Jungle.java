@@ -1,11 +1,11 @@
 package main;
 
-import java.util.List; 
+import java.util.List; // NEW CODE
 
-/** concrete animal type created by Animal.create('J', ...). */
+/** NEW CODE: concrete animal type created by Animal.create('J', ...). */
 public class Jungle extends Animal {
 
-    // the ten jungle animals. Format per animal:
+    // NEW CODE: the ten jungle animals. Format per animal:
     // { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
     private static final String[][] ANIMAL_DATA = {
         {"Tiger", "Panthera tigris", "Carnivore", "Endangered",
@@ -59,7 +59,7 @@ public class Jungle extends Animal {
          "I am the largest lizard alive and I live on islands in Indonesia."},
     };
 
-    // builds the animals of this type (each with its clue) for the biome they live in
+    // NEW CODE: builds the animals of this type (each with its clue) for the biome they live in
     static List<Animal> createAnimals(String biomeName) {
         return Animal.fromRows('J', biomeName, ANIMAL_DATA);
     }
@@ -76,7 +76,7 @@ public class Jungle extends Animal {
     public String getMovementStyle() { return "Swings, climbs and prowls through the canopy"; }
 
     @Override
-    public String getSpriteTemplate() { return "sprites/jungle_template.png"; }
+    public String getSpriteTemplate() { return "sprites/jungle_scene.png"; }
 
     @Override
     public String getRevealMessage() { return "It swings down from the canopy and drops in front of you!"; } // NEW CODE

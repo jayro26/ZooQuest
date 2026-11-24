@@ -1,11 +1,12 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.*;
-import main.ZooQuest.ZoneLockedException;
+import main.exceptions.ZoneLockedException;
+import main.*;
 
 /**
  * NEW BIOME UNLOCKED (layout PDF): new-achievement box, title, picture of the new biome, name,

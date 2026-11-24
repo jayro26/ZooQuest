@@ -1,9 +1,10 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
+import main.*;
 
 /** CONGRATULATIONS (layout PDF): picture with all animals, "Congratulations!!", "You Completed <Biome>", Next. */
 public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable {

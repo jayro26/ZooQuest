@@ -1,75 +1,58 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List; 
-import java.util.Optional; 
+import java.util.*;
 
+/** Player profile: name, completed biomes and earned badges. */
 public class UserProfile {
-    public static final int MAX_USERNAME_LENGTH = 20; 
+    public static final int MAX_NAME_LENGTH = 20;
+
     private String username;
-    private List<Integer> completedBiomes;
-    private List<Achievement> achievements;
+    private final List<Achievement> userAchievements = new ArrayList<>();
+    private final Set<Integer> userProgress = new TreeSet<>();
 
-    public UserProfile(String username) {
-        this.username = validateUsername(username);
-        this.completedBiomes = new ArrayList<>();
-        this.achievements = new ArrayList<>();
+    public UserProfile(String username) { 
+        this.username = validateUsername(username); 
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    // validated rename (the profile previously had no way to change its name)
-    public void setUsername(String username) {
-        this.username = validateUsername(username);
-    }
-
-    // trims the name and rejects blank / too long names
+    /** @return the trimmed name; throws IllegalArgumentException when blank or too long. */
     public static String validateUsername(String name) {
-        String trimmed = name == null ? "" : name.trim();
-        if (trimmed.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty.");
-        }
-        if (trimmed.length() > MAX_USERNAME_LENGTH) {
-            throw new IllegalArgumentException("Name can be at most " + MAX_USERNAME_LENGTH + " characters.");
-        }
-        return trimmed;
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be blank.");
+        String n = name.trim();
+        if (n.length() > MAX_NAME_LENGTH) throw new IllegalArgumentException("Name must be at most " + MAX_NAME_LENGTH + " characters.");
+        return n;
     }
 
-    public List<Integer> getUserProgress() {
-        return Collections.unmodifiableList(completedBiomes); 
+    public String getUsername() { 
+        return username;  
     }
 
-    public List<Achievement> getUserAchievements() {
-        return Collections.unmodifiableList(achievements); 
+    public void setUsername(String name) { 
+        this.username = validateUsername(name); 
     }
 
-    public void addAchievement(Achievement achievement) {
-        if (achievement != null) {
-            achievements.add(achievement);
-        }
+    public List<Achievement> getUserAchievements() { 
+        return Collections.unmodifiableList(userAchievements); 
+    }
+    public Set<Integer> getUserProgress() { 
+        return Collections.unmodifiableSet(userProgress); 
     }
 
-    public boolean hasAchievement(String badgeName) {
-        return findAchievement(badgeName).isPresent();
-    }
+    public void addAchievement(Achievement a) {
+         if (!hasAchievement(a.getBadgeName())) userAchievements.add(a);
+         }
 
+    public boolean hasAchievement(String badgeName) { 
+        return findAchievement(badgeName).isPresent(); 
+    }
     public Optional<Achievement> findAchievement(String badgeName) {
-        return achievements.stream().filter(a -> a.getBadgeName().equals(badgeName)).findFirst();
+        return userAchievements.stream().filter(a -> a.getBadgeName().equals(badgeName)).findFirst();
     }
-
-
-    public void markBiomeCompleted(int biomeIndex) {
-        if (!completedBiomes.contains(biomeIndex)) {
-            completedBiomes.add(biomeIndex);
-        }
+    public void markBiomeCompleted(int biomeIndex) { 
+        userProgress.add(biomeIndex); 
     }
 
     public String showProgress() {
-        return " Completed biomes: " + completedBiomes.size() + " | Achievements: "
-                + achievements.size();
+        return "Biomes completed: " + userProgress.size() + "/" + GameManager.BIOME_COUNT
+                + "  |  Badges: " + userAchievements.size() + "/" + GameManager.BIOME_COUNT * GameManager.BADGES_PER_BIOME;
     }
-
 }

@@ -1,10 +1,11 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import main.*;
 
 public final class GuiImages {
     public static final String HIDDEN_FILE = "hidden_animal.png";
@@ -19,7 +20,7 @@ public final class GuiImages {
     }
 
     /**
-     * Animal artwork in this project is stored directly in main/resources/.
+     * Animal artwork in this project is stored directly in resources/.
      * A few display names differ from the filenames, so map those explicitly.
      */
     public static String animalFile(Animal a) {
@@ -34,6 +35,25 @@ public final class GuiImages {
             case "manta ray": return "manta_ray.png";
             case "komodo dragon": return "komodo dragon.png";
             default: return slug(name) + ".png";
+        }
+    }
+
+    /** Hidden artwork paired with each animal's normal sprite. */
+    public static String hiddenAnimalFile(Animal a) {
+        String name = a.getName().trim().toLowerCase(java.util.Locale.ROOT);
+        switch (name) {
+            case "hippopotamus": return "hippo_hidden.png";
+            case "nile crocodile": return "nile_crocodile_hidden.png";
+            case "sea lion": return "sealion_hidden.png";
+            case "octupus":
+            case "octopus": return "octopus_hidden.png";
+            case "stringray": return "sting_ray_hidden.png";
+            case "manta ray": return "manta_ray_hidden.png";
+            case "komodo dragon": return "komodo_dragon_hidden.png";
+            case "buffalo": return "african_buffalo_hidden.png";
+            case "gorilla": return "Gorilla_hidden).png";
+            case "swordfish": return "sworfish_hidden.png";
+            default: return slug(name) + "_hidden.png";
         }
     }
     

@@ -2,10 +2,10 @@ package main;
 
 import java.util.List; // NEW CODE
 
-/** concrete animal type created by Animal.create('A', ...). */
+/** NEW CODE: concrete animal type created by Animal.create('A', ...). */
 public class Aquatic extends Animal {
 
-    // the ten aquatic animals. Format per animal:
+    // NEW CODE: the ten aquatic animals. Format per animal:
     // { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
     private static final String[][] ANIMAL_DATA = {
         {"Tuna", "Thunnus thynnus", "Carnivore", "Varies (southern bluefin: Endangered)",
@@ -59,7 +59,7 @@ public class Aquatic extends Animal {
          "My wings can stretch wider than a boat and I seat tiny plankton"},
     };
 
-    // builds the animals of this type (each with its clue) for the biome they live in
+    // NEW CODE: builds the animals of this type (each with its clue) for the biome they live in
     static List<Animal> createAnimals(String biomeName) {
         return Animal.fromRows('A', biomeName, ANIMAL_DATA);
     }
@@ -76,7 +76,7 @@ public class Aquatic extends Animal {
     public String getMovementStyle() { return "Swims and glides through open water"; }
 
     @Override
-    public String getSpriteTemplate() { return "sprites/aquatic_template.png"; }
+    public String getSpriteTemplate() { return "sprites/ocean_scene.png"; }
 
     @Override
     public String getRevealMessage() { return "It leaps out of the water with a big splash!"; } // NEW CODE

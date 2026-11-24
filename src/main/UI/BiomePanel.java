@@ -1,11 +1,12 @@
-package main;
+package main.UI;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import main.ZooQuest.ZoneLockedException;
+import javax.swing.*;
+import main.*;
+import main.exceptions.ZoneLockedException;
 
 /**
  * CHOOSE BIOME (layout PDF): "<- Back", title, three tall cards (picture + name), arrows when there are more than three.
@@ -21,7 +22,7 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
     private int page = 0;
 
     public BiomePanel(ZooQuestGUI app) {
-        super("jungle_scene.png");
+        super("main_screen_background.png");
         this.app = app;
         setLayout(new BorderLayout(0, 14));
         setBorder(BorderFactory.createEmptyBorder(24, 40, 30, 40));

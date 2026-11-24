@@ -1,4 +1,4 @@
-package main;
+package main.UI;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -8,7 +8,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import main.ZooQuest.AnimalNotFoundException;
+import main.exceptions.AnimalNotFoundException;
+import main.*;
 
 /**
  * Hidden-animal seek-and-find screen.

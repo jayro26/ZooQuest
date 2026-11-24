@@ -1,10 +1,11 @@
-package main;
+package main.UI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
+import main.*;
 
 /**
  * PROFILE (layout PDF): left card = name + biomes completed, right card = achievements list, Edit + Back at the bottom.
