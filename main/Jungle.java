@@ -76,7 +76,7 @@ public class Jungle extends Animal {
     public String getMovementStyle() { return "Swings, climbs and prowls through the canopy"; }
 
     @Override
-    public String getSpriteTemplate() { return "sprites/jungle_template.png"; }
+    public String getSpriteTemplate() { return "sprites/jungle_scene.png"; }
 
     @Override
     public String getRevealMessage() { return "It swings down from the canopy and drops in front of you!"; } // NEW CODE
