@@ -1,5 +1,7 @@
 <div align="center">
-  <h1> Zoo Quest </h1>
+  <h1> 
+    <img src="screenshots/zoo-quest-logo.png" width="300" />
+  </h1>
   <p> 
   An Interactive Zoo Exploration and Investigation Game <br>
   Made By Group 6 - <strong>cup of code</strong> (CS 2101) <br>
@@ -39,10 +41,10 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
 
 ## ⌨️ Technologies Used:
 
-1. **Java** - The main programming language of the system <br>
-2. **Java Swing** - used for the GUI implementation <br>
-3. **Java AWT** - Used for screen navigation via `CardLayout`, layout managers, colors, fonts, and user click event handling.
-4. **Java Stanadard I/O** - Used for loading local animal and badge visual assets (`imagePath`, `iconPath`) and handling player progress persistence (`saveProgress()`).
+1. **Java** - The main programming language of the system
+2. **Java Swing** - Used for the GUI implementation
+3. **Java AWT** - Used for screen navigation.
+4. **Java Stanadard I/O** - Used for loading local animal and badge visual assets.
 
 ## 🧩 OOP Principles Demonstrated
 
