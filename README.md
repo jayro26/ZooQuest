@@ -1,8 +1,19 @@
-# ZooQuest - An Interactive Zoo Exploration and Investigation Game
+<div align="center">
+  <h1> Zoo Quest </h1>
+  <p> 
+  An Interactive Zoo Exploration and Investigation Game <br>
+  Made By Group 6 - <strong>cup of code</strong> (CS 2101) <br>
+  </p>
+  <p> 
+  A project rquired for the course: <em><strong>OOP 101: Object Oriented Programming</strong></em> 
+  </p>
+</div>
+
+##
 
 ## 📙 Description
 
-A Java-based application where the user can explore different zones in a zoo and interact with various animals. Each zone has a mystery game, and the system will give the user a clue that can help solve the mystery. After getting enough clues and solving the mystery (find the animals), the user can unlock and move to the next zone until they finish the whole game.
+**Zoo Quest** is a Java-based application where the user can explore different zones in a zoo and interact with various animals. Each zone has a mystery game, and the system will give the user a clue that can help solve the mystery. After getting enough clues and solving the mystery (find the animals), the user can unlock and move to the next zone until they finish the whole game.
 
 ## 🔎 Problems being addressed
 
@@ -33,43 +44,7 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
 3. **Java AWT** - Used for screen navigation via `CardLayout`, layout managers, colors, fonts, and user click event handling.
 4. **Java Stanadard I/O** - Used for loading local animal and badge visual assets (`imagePath`, `iconPath`) and handling player progress persistence (`saveProgress()`).
 
-## 👥 Team Members and Roles
-
-<table>
-<tr>
-    <th> Name </th>
-    <th> Role </th>
-</tr>
-<tr>
-    <td> Arias, Jayro J. </td>
-    <td>
-        <ul>
-            <li> Develops the program flow and user interaction flow of the ZooQuest application. </li>
-            <li> Maintains the README, testing documentation, screenshots, and assists in checking the application's functionality. </li>
-        </ul>
-    </td>
-</tr>
-<tr>
-    <td> Carenan, Ahron Simeon D  </td>
-    <td>
-        <ul>
-            <li> Coordinates the implementation of Java classes, methods, and OOP features.  </li>
-            <li> Develop the UI/UX design of the program. </li>
-        </ul>
-    </td>
-</tr>
-<tr>
-    <td> De Lumen, Janelle H. </td>
-    <td>
-        <ul>
-            <li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li>
-            <li> Helps plan the GUI navigation and gameplay sequence, including biome exploration and mystery game progression. </li>
-        </ul>
-    </td>
-</tr>
-</table>
-
-## 🧩 OOP Concepts Demonstrated
+## 🧩 OOP Principles Demonstrated
 
 - **Encapsulation** <br> Protects game state and data integrity by restricting direct access to internal fields. Core attributes (`isLocked` in `Biome`, `isRevealed` in `MysteryClue`, `isSolved` in `MysteryGame`, and `userProgress` in `UserProfile`) are kept private and modified strictly through controlled methods (`unlockBiome()`, `reveal()`, `solveMystery()`, `addAchievements()`). <br>
 - **Abstraction** <br> Hiding background mechanics and exposing only clear interfaces to the player and GUI. `GameManager` and `MysteryGame` handle state transitions, guess verification (`verifyGuess()`), and biome progression behind the scenes, while GUI panels (`BiomeViewPanel`, `MysteryGamePanel`) simply trigger high-level actions.<br>
@@ -78,9 +53,18 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
 
 ## 📝 Instructions for running the program
 
+1. Download the zip file and extract it.
+2. Inside the ZooQuest folder, right click the src folder and select **Open in Terminal**.
+3. Compile the program using the command:
+```
+javac main/*.java
+```
+4. Run the main file using the command:
+```
+java main.ZooQuest
+```
 
 ## 📷 Sample Screenshots
-
 
 ## 🔒 Known Limitations
 
@@ -97,23 +81,41 @@ Badges or titles such as “First Clue Collected” or “Master Explorer” are
 4. Implement a stronger save feature that stores player progress in a more secured file format.
 5. Package the application as a standalone executable version for easier installation and distribution.
 
-## Project Contributors
+## 👥 Project Contributors
 
 <table>
 <tr>
-    <td> Arias, Jayro J. </td>
-    <td> &nbsp </td>
+    <th> Name </th>
+    <th> Contributions </h>
 </tr>
 <tr>
-    <td> Carenan, Ahron Simeon D  </td>
-    <td> &nbsp </td>
+    <td> Arias, Jayro J. </td>
+    <td>
+        <ul>
+            <li> Develops the program flow and user interaction flow of the ZooQuest application. </li>
+            <li> Maintains the README, testing documentation, screenshots, and assists in checking the application's functionality. </li>
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td> Carenan, Ahron Simeon D.  </td>
+    <td>
+        <ul>
+            <li> Coordinates the implementation of Java classes, methods, and OOP features.  </li>
+            <li> Develop the UI/UX design of the program. </li>
+        </ul>
+    </td>
 </tr>
 <tr>
     <td> De Luna, Janelle H. </td>
-    <td> &nbsp </td>
+    <td>
+        <ul>
+            <li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li>
+            <li> Helps plan the GUI navigation and gameplay sequence, including biome exploration and mystery game progression. </li>
+        </ul>
+    </td>
 </tr>
 </table>
-
 
 
  
