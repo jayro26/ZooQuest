@@ -21,6 +21,11 @@ public class ZooQuestGUI extends JFrame {
     public static final String BIOMES = "biomes";
     public static final String ACHIEVEMENTS = "achievements";
     public static final String PROFILE = "profile";
+    public static final String ANIMALS = "animals";
+    public static final String GAME = "game";
+    public static final String COMPLETE = "complete";
+    public static final String UNLOCKED = "unlocked";
+
 
     public static final Color GOLD = new Color(255, 214, 102);
     public static final Color PANEL_BG = new Color(20, 40, 28, 205);
@@ -39,16 +44,20 @@ public class ZooQuestGUI extends JFrame {
             }
         });
         setContentPane(root);
-        setMinimumSize(new Dimension(960, 540));
-        setSize(1280, 720);
+        setMinimumSize(new Dimension(800, 560));
+        setSize(1000, 680);
         setLocationRelativeTo(null);
 
         register(START, new StartPanel(this));
         register(MENU, new MainMenuPanel(this));
         // Placeholders until the teammates plug in the real panels
-        register(BIOMES, placeholder("Biome Selection"));
-        register(ACHIEVEMENTS, placeholder("Achievements"));
-        register(PROFILE, placeholder("Profile"));
+        register(BIOMES, new BiomePanel(this));
+        register(ANIMALS, new AnimalsPanel(this));
+        register(GAME, new GamePanel(this));
+        register(COMPLETE, new CompletePanel(this));
+        register(UNLOCKED, new UnlockedPanel(this));
+        register(ACHIEVEMENTS, new AchievementsPanel(this));
+        register(PROFILE, new ProfilePanel(this));
         show(START);
     }
 
