@@ -76,7 +76,7 @@ public class Aquatic extends Animal {
     public String getMovementStyle() { return "Swims and glides through open water"; }
 
     @Override
-    public String getSpriteTemplate() { return "sprites/aquatic_template.png"; }
+    public String getSpriteTemplate() { return "sprites/ocean_scene.png"; }
 
     @Override
     public String getRevealMessage() { return "It leaps out of the water with a big splash!"; } // NEW CODE
