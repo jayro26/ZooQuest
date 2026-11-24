@@ -76,7 +76,7 @@ public class Safari extends Animal {
     public String getMovementStyle() { return "Gallops and roams across open grassland"; }
 
     @Override
-    public String getSpriteTemplate() { return "sprites/safari_template.png"; }
+    public String getSpriteTemplate() { return "sprites/savannah_scene.png"; }
 
     @Override
     public String getRevealMessage() { return "It gallops out of the tall grass and skids to a stop!"; } // NEW CODE
