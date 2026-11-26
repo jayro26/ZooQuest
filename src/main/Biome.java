@@ -2,7 +2,7 @@ package main;
 
 import java.util.*;
 
-/** A habitat (zone) holding 10 animals and one mystery game. */
+// A habitat (zone) holding 10 animals and one mystery game.
 public abstract class Biome {
     private final String biomeName;
     private final String description;
@@ -32,7 +32,8 @@ public abstract class Biome {
 
     // what makes each zone type different (polymorphic)
     public abstract String getBiomeType();
-    /** The Animal.create(...) type code of the animals that live in this zone. */
+    
+    // The Animal.create(...) type code of the animals that live in this zone.
     public abstract char getAnimalTypeCode();
     public abstract String getBackgroundTemplate();
     public abstract String[] getScenery();

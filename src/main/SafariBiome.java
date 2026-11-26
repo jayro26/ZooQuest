@@ -1,6 +1,6 @@
 package main;
 
-/** NEW CODE: safari zone, created by Biome.create('S', ...). */
+// Safari zone, created by Biome.create('S', ...). 
 public class SafariBiome extends Biome {
 
     public SafariBiome(String biomeName, String description, boolean isLocked) {

@@ -5,11 +5,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 
-/** A dimmed layer over the current screen with a card in the middle (the pop-ups of the layout PDF). */
+// A dimmed layer over the current screen with a card in the middle. 
 public final class Overlay {
     private Overlay() {}
 
-    /** Builds the layer. A click outside the content calls onOutsideClick (may be null). */
+    // Builds the layer. A click outside the content calls onOutsideClick (may be null). 
     public static JPanel build(JComponent content, Runnable onOutsideClick) {
         JPanel p = new JPanel(new GridBagLayout()) {
             @Override
@@ -29,7 +29,7 @@ public final class Overlay {
         return p;
     }
 
-    /** Shows the content over the window (glass pane). */
+    // Shows the content over the window (glass pane).
     public static void show(ZooQuestGUI app, JComponent content, Runnable onOutsideClick) {
         JPanel p = build(content, onOutsideClick);
         app.setGlassPane(p);

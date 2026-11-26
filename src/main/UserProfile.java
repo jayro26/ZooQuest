@@ -2,7 +2,7 @@ package main;
 
 import java.util.*;
 
-/** Player profile: name, completed biomes and earned badges. */
+// Player profile: name, completed biomes and earned badges.
 public class UserProfile {
     public static final int MAX_NAME_LENGTH = 20;
 

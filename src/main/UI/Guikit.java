@@ -4,10 +4,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import main.*;
+import main.Achievement;
 
-/** Shared Swing and Java2D helpers used throughout the ZooQuest screens. */
-final class GuiKit {
+//** Shared Swing and Java2D helpers used throughout the ZooQuest screens.
+public final class GuiKit {
     public static final Color GREEN = new Color(46, 150, 80);
     public static final Color ORANGE = new Color(200, 140, 30);
     public static final Color BLUE = new Color(50, 120, 190);
@@ -72,13 +72,13 @@ final class GuiKit {
         return name;
     }
 
-    /** Translucent dark plate used behind text over an image. */
+    // Translucent dark plate used behind text over an image.
     public static void plate(Graphics2D g, int x, int y, int w, int h, int arc) {
         g.setColor(new Color(0, 0, 0, 105));
         g.fillRoundRect(x, y, w, h, arc, arc);
     }
 
-    /** Filled five-point star centred at (cx, cy). */
+    // Filled five-point star centred at (cx, cy). 
     public static void star(Graphics2D g, int cx, int cy, int radius, Color color) {
         int[] xs = new int[10];
         int[] ys = new int[10];
@@ -92,7 +92,7 @@ final class GuiKit {
         g.fillPolygon(xs, ys, 10);
     }
 
-    /** Draws a simple padlock centred at (cx, cy). */
+    // Draws a simple padlock centred at (cx, cy). 
     public static void padlock(Graphics2D g, int cx, int cy, int size) {
         int s = Math.max(12, size);
         int bodyW = (int) (s * 0.62);
@@ -107,7 +107,7 @@ final class GuiKit {
         g.fillRect(cx - s / 40, cy + bodyH / 4, Math.max(2, s / 20), Math.max(2, s / 8));
     }
 
-    /** Rounded button with hover, pressed, and disabled states. */
+    // Rounded button with hover, pressed, and disabled states.
     public static class Btn extends JButton {
         private Color base;
         private boolean selected;

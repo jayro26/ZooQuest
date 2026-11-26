@@ -1,16 +1,19 @@
 package main.UI;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
-import main.*;
+import javax.swing.*;
+import main.Achievement;
+import main.Biome;
+import main.GameManager;
+import main.UserProfile;
 
-/**
- * PROFILE (layout PDF): left card = name + biomes completed, right card = achievements list, Edit + Back at the bottom.
- * Edit turns the name into a text field; Save calls GameManager.renamePlayer.
- */
+/*
+- PROFILE (layout PDF): left card = name + biomes completed, right card = achievements list, Edit + Back at the bottom.
+- Edit turns the name into a text field; Save calls GameManager.renamePlayer.
+*/
 public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final JLabel nameLabel = new JLabel(" ");
@@ -22,7 +25,8 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
     private boolean editing;
 
     public ProfilePanel(ZooQuestGUI app) {
-        super("jungle_scene.png");
+        super("main_screen_background.png");
+        setFadeEnabled(true);                          // fade in / out between screens
         this.app = app;
         JPanel outer = ZooQuestGUI.card(0);
         outer.setLayout(new BorderLayout(0, 16));
@@ -153,7 +157,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         refresh();
     }
 
-    /** A biome tile: picture, name, tick when completed, dimmed otherwise. */
+    // A biome tile: picture, name, tick when completed, dimmed otherwise.
     private static class Thumb extends JComponent {
         private final Biome biome;
         private final GameManager.BiomeStatus status;
@@ -193,7 +197,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         }
     }
 
-    /** One earned achievement in the list. */
+    // One earned achievement in the list.
     private static class AchRow extends JComponent {
         private final Achievement a;
 

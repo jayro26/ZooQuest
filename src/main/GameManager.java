@@ -3,31 +3,31 @@ package main;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException; // NEW CODE
+import java.time.format.DateTimeParseException;
 import java.util.*;
-import main.exceptions.AnimalNotFoundException; // NEW CODE
-import main.exceptions.InsufficientCluesException; // NEW CODE
-import main.exceptions.ZoneLockedException; // NEW CODE
+import main.exceptions.AnimalNotFoundException;
+import main.exceptions.InsufficientCluesException; 
+import main.exceptions.ZoneLockedException; 
 
-/**
- * Controls the overall game flow: loading biomes, running the mystery game,
- * handling biome completion (achievement + unlock) and saving progress.
- *
- * Saving rule: progress is written ONLY when a biome is completed (or the player is renamed).
- * Leaving a biome mid-game discards that biome's progress and saves nothing.
- *
- * NEW CODE: this class now also owns the achievement rules (two badges per biome), the clue mode of a run,
- * renaming and the read-only queries the UI needs, so a UI never has to touch the domain objects directly.
- */
+/*
+- Controls the overall game flow: loading biomes, running the mystery game,
+- handling biome completion (achievement + unlock) and saving progress.
+
+- Saving rule: progress is written ONLY when a biome is completed (or the player is renamed).
+- Leaving a biome mid-game discards that biome's progress and saves nothing.
+
+- also owns the achievement rules (two badges per biome), the clue mode of a run,
+- renaming and the read-only queries the UI needs, so a UI never has to touch the domain objects directly.
+*/
 public class GameManager {
     public static final int BIOME_COUNT = 3;
     public static final int ANIMALS_PER_BIOME = 10;
-    public static final int BADGES_PER_BIOME = 2; // NEW CODE: Clear badge + No-Clue badge
+    public static final int BADGES_PER_BIOME = 2; // Clear badge + No-Clue badge
 
-    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // NEW CODE: Jungle, Safari, Aquatic
+    private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // Jungle, Safari, Aquatic
     private static final String[] BIOME_NAMES = {"Jungle", "Safari", "Aqua"};
     private static final String[] BIOME_DESCRIPTIONS = {"Description 1", "Description 2", "Description 3"};
-    private static final String HIDDEN_CLUE_TEXT = "(clue hidden)"; // NEW CODE
+    private static final String HIDDEN_CLUE_TEXT = "(clue hidden)";
 
     // the animal descriptions (name, species, diet, status, behaviour, unique feature, clue hint)
     // no longer live here. Each animal type owns its animals: see Jungle, Safari and Aquatic.
@@ -45,26 +45,26 @@ public class GameManager {
     private boolean clueShown;           // the clue of the currently tapped animal was delivered
     private int wrongGuesses;
 
-    /** Result of one guess, handed to the UI. */
-    /**
-     * achievementEarned is the biome's Clear badge (null until the biome is completed; on a replay it is
-     * the badge the player already owned). newAchievements lists only the badges actually awarded by this guess.
-     */
+    // Result of one guess, handed to the UI.
+    /*
+    - achievementEarned is the biome's Clear badge (null until the biome is completed; on a replay it is
+    - the badge the player already owned). newAchievements lists only the badges actually awarded by this guess.
+    */
     public record GuessResult(boolean correct, Animal revealedAnimal, int foundCount,
                               int totalCount, boolean biomeCompleted, Achievement achievementEarned,
                               List<Achievement> newAchievements) { }
 
-    /** what the biome list shows for a biome. PERFECT = both badges earned. */
+    // what the biome list shows for a biome. PERFECT = both badges earned.
     public enum BiomeStatus { LOCKED, UNLOCKED, COMPLETED, PERFECT }
 
-    /** one entry of the saved-player list (start screen): name + a short progress summary. */
+    // one entry of the saved-player list (start screen): name + a short progress summary.
     public record SavedPlayer(String username, int completedBiomes, int badges) { }
 
-    /**
-     * where the saves live - the "saves" folder inside the project's main folder (main/saves).
-     * Works whether the program is started from the project folder (which contains main/) or from inside main/.
-     * A "saves" folder left next to main/ by an earlier version is moved here once, so existing players are kept.
-     */
+    /*
+    - where the saves live - the "saves" folder inside the project's main folder (main/saves).
+    - Works whether the program is started from the project folder (which contains main/) or from inside main/.
+    - A "saves" folder left next to main/ by an earlier version is moved here once, so existing players are kept.
+    */
     public static Path defaultSaveDirectory() {
         return ProjectPaths.savesDirectory();
     }
@@ -75,7 +75,7 @@ public class GameManager {
 
     // ---------------------------------------------------------------- setup
 
-    /** Builds the biomes, creates the player and restores any saved progress. */
+    // Builds the biomes, creates the player and restores any saved progress.
     public void initializeGame(String username) {
         currentPlayer = new UserProfile(username);
         currentBiome = null;
@@ -123,10 +123,10 @@ public class GameManager {
     }
 
     /**
-     * chooses the clue mode of this run. true (default) = the clue is delivered with every tap;
-     * false = no-clue challenge: clues stay hidden until revealClue() is called, which forfeits the No-Clue badge.
-     * Only allowed before the first animal is tapped.
-     */
+    - chooses the clue mode of this run. true (default) = the clue is delivered with every tap;
+    - false = no-clue challenge: clues stay hidden until revealClue() is called, which forfeits the No-Clue badge.
+    - Only allowed before the first animal is tapped.
+    */
     public void setClueMode(boolean cluesOnTap) {
         requireActiveBiome();
         if (currentBiome.getBiomeMystery().getRoundCount() > 0) {
@@ -135,11 +135,11 @@ public class GameManager {
         this.cluesOnTap = cluesOnTap;
     }
 
-    /**
-     * Player taps a hidden animal; returns the clue to show. Choices come from getCurrentChoices().
-     * in the no-clue challenge the returned clue is a masked placeholder (its text is "(clue hidden)")
-     * until revealClue() is called; use isClueShown() to know whether the real clue was delivered.
-     */
+    /*
+    - Player taps a hidden animal; returns the clue to show. Choices come from getCurrentChoices().
+    - in the no-clue challenge the returned clue is a masked placeholder (its text is "(clue hidden)")
+    - until revealClue() is called; use isClueShown() to know whether the real clue was delivered.
+    */
     public MysteryClue selectHiddenAnimal(String animalName) throws AnimalNotFoundException {
         requireActiveBiome();
         MysteryClue clue = currentBiome.getBiomeMystery().selectHiddenAnimal(animalName);
@@ -151,7 +151,7 @@ public class GameManager {
         return new MysteryClue(clue.getClueId(), HIDDEN_CLUE_TEXT, clue.getAssociatedAnimalName());
     }
 
-    /** reveals the real clue of the tapped animal. Counts as using a clue (forfeits the No-Clue badge). */
+    // reveals the real clue of the tapped animal. Counts as using a clue (forfeits the No-Clue badge). 
     public String revealClue() {
         requireActiveBiome();
         Animal target = currentBiome.getBiomeMystery().getTargetAnimal();
@@ -169,7 +169,7 @@ public class GameManager {
         return currentBiome.getBiomeMystery().getCurrentChoices();
     }
 
-    /** Checks the player's choice. Completes the biome automatically when the last animal is found. */
+    // Checks the player's choice. Completes the biome automatically when the last animal is found.
     public GuessResult processGuess(String guess) {
         requireActiveBiome();
         MysteryGame mystery = currentBiome.getBiomeMystery();
@@ -196,11 +196,11 @@ public class GameManager {
                 clearBadge, newBadges);
     }
 
-    /**
-     * Awards the Clear badge, marks progress, unlocks the next biome and saves.
-     * returns the biome's Clear badge (a replay returns the one the player already owns);
-     * the No-Clue badge is awarded too when the run was clue-free.
-     */
+    /*
+    - Awards the Clear badge, marks progress, unlocks the next biome and saves.
+    - returns the biome's Clear badge (a replay returns the one the player already owns);
+    - the No-Clue badge is awarded too when the run was clue-free.
+    */
     public Achievement handleBiomeCompletion() throws InsufficientCluesException {
         awardCompletionBadges();
         return currentPlayer.findAchievement(clearBadgeName(currentBiome.getBiomeName())).orElseThrow();
@@ -252,21 +252,21 @@ public class GameManager {
     }
 
     /**
-     * Player leaves the biome (back button, window closed, etc.).
-     * Unfinished progress is discarded and nothing is saved.
-     */
+    - Player leaves the biome (back button, window closed, etc.).
+    - Unfinished progress is discarded and nothing is saved.
+    */
     public void exitCurrentBiome() {
         if (currentBiome != null) {
             currentBiome.resetProgress();
             currentBiome = null;
             currentBiomeIndex = -1;
         }
-        resetRunState(); // NEW CODE
+        resetRunState();
     }
 
     // ---------------------------------------------------------- persistence
 
-    /** Writes completed biomes and badge dates. Called only from handleBiomeCompletion(). */
+    // Writes completed biomes and badge dates. Called only from handleBiomeCompletion().
     public void saveProgress() throws IOException {
         requireInitialized();
         Files.createDirectories(saveDirectory);
@@ -329,6 +329,9 @@ public class GameManager {
 
     private Path saveFileFor(String username) {
         String safe = username.replaceAll("[^a-zA-Z0-9_-]", "_");
+        // Windows does not allow files called CON, NUL, AUX, PRN, COM1-9 or LPT1-9 (with any extension),
+        // so a player with one of those names could never be saved. A leading underscore makes the name usable.
+        if (safe.matches("(?i)(con|prn|aux|nul|com[1-9]|lpt[1-9])")) safe = "_" + safe;
         return saveDirectory.resolve(safe + ".save");
     }
 
@@ -341,11 +344,11 @@ public class GameManager {
     }
 
     // renaming - UserProfile validates the name, the save file follows the new name
-    /**
-     * Renames the player and moves the save file along with it.
-     * @return false when the name did not change
-     * @throws IllegalArgumentException if the name is blank/too long or already belongs to another saved player
-     */
+    /*
+    - Renames the player and moves the save file along with it.
+    - @return false when the name did not change
+    - @throws IllegalArgumentException if the name is blank/too long or already belongs to another saved player
+    */
     public boolean renamePlayer(String newName) throws IOException {
         requireInitialized();
         String candidate = UserProfile.validateUsername(newName);
@@ -368,7 +371,7 @@ public class GameManager {
     // Every player owns exactly one save file (saves/<name>.save) holding their completed biomes and badges.
     // Loading one player never touches another player's file.
 
-    /** All players that have a save file, sorted by name. Never throws; an unreadable file is skipped. */
+    // All players that have a save file, sorted by name. Never throws; an unreadable file is skipped.
     public List<SavedPlayer> listSavedPlayers() {
         if (!Files.isDirectory(saveDirectory)) return List.of();
         List<SavedPlayer> players = new ArrayList<>();
@@ -394,11 +397,11 @@ public class GameManager {
         return List.copyOf(players);
     }
 
-    /**
-     * Registers a new player: starts a fresh profile and writes its (empty) save file right away,
-     * so the player shows up in listSavedPlayers() next time the game starts.
-     * @throws IllegalArgumentException if the name is blank/too long or already belongs to a saved player
-     */
+    /*
+    - Registers a new player: starts a fresh profile and writes its (empty) save file right away,
+    - so the player shows up in listSavedPlayers() next time the game starts.
+    - @throws IllegalArgumentException if the name is blank/too long or already belongs to a saved player
+    */
     public void createPlayer(String username) throws IOException {
         String name = UserProfile.validateUsername(username);
         boolean taken = Files.exists(saveFileFor(name))
@@ -410,10 +413,10 @@ public class GameManager {
         saveProgress();
     }
 
-    /**
-     * Switches to an existing player and restores their biomes and achievements.
-     * @throws IllegalArgumentException if no save exists for that name
-     */
+    /*
+    - Switches to an existing player and restores their biomes and achievements.
+    - @throws IllegalArgumentException if no save exists for that name
+    */
     public void loadPlayer(String username) {
         String name = UserProfile.validateUsername(username);
         if (!Files.exists(saveFileFor(name))) {
@@ -439,7 +442,7 @@ public class GameManager {
         return (int) props.stringPropertyNames().stream().filter(k -> k.startsWith("badgeDate.")).count();
     }
 
-    // ------------------------------------------------------------ badge rules (NEW CODE)
+    // ------------------------------------------------------------ badge rules
 
     public static String clearBadgeName(String biomeName) { return biomeName + "_badge"; }
     public static String noClueBadgeName(String biomeName) { return biomeName + "_no_clue_badge"; }

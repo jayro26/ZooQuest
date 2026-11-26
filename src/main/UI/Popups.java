@@ -4,9 +4,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 import javax.swing.*;
-import main.*;
+import main.Animal;
 
-/** The two pop-ups of the layout PDF: animal details and "Choose Difficulty". Put them in an Overlay. */
+// The two pop-ups of the layout PDF: animal details and "Choose Difficulty". Put them in an Overlay.
 public final class Popups {
     private Popups() {}
 
@@ -14,7 +14,7 @@ public final class Popups {
         return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"); 
     }
     
-    /** Big picture on the left (animals/<name>.png), name under it, Back bottom-left, Description on the right. */
+    // Big picture on the left (animals/<name>.png), name under it, Back bottom-left, Description on the right. 
     public static JPanel animalDetail(Animal a, Runnable onBack) {
         JPanel card = ZooQuestGUI.card(0);
         card.setLayout(new BorderLayout(24, 0));
@@ -58,17 +58,25 @@ public final class Popups {
         String desc = a.getDescription();
         int k = desc.indexOf("Unique feature:");
         String feature = k >= 0 ? desc.substring(k + "Unique feature:".length()).trim() : "";
-        String html = "<html><div style='width:360px'>"
+        String html = "<html><body>"
                 + "<b>Type:</b> " + esc(a.getAnimalType()) + " - " + esc(a.getMovementStyle()) + "<br><br>"
                 + "<b>Habitat:</b> " + esc(a.getHabitat()) + "<br><br>"
                 + "<b>Diet:</b> " + esc(a.getDiet()) + "<br><br>"
                 + "<b>Status:</b> " + esc(a.getStatus()) + "<br><br>"
                 + "<b>Behaviour:</b> " + esc(a.getBehaviour()) + "<br><br>"
                 + "<b>Unique feature:</b> " + esc(feature) + "<br><br>"
-                + "<b>Clue:</b> " + esc(clue) + "</div></html>";
-        JLabel text = GuiKit.label(html, 15, false, Color.WHITE);
-        text.setVerticalAlignment(SwingConstants.TOP);
-        JScrollPane sp = new JScrollPane(text);
+                + "<b>Clue:</b> " + esc(clue) + "</body></html>";
+        // an HTML text pane instead of a JLabel, so the text wraps to the width of the box (a JLabel cannot)
+        JEditorPane text = new JEditorPane("text/html", html);
+        text.setEditable(false);
+        text.setOpaque(false);
+        text.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        text.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        text.setForeground(Color.WHITE);
+        text.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+        text.setCaretPosition(0);
+        JScrollPane sp = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sp.setOpaque(false);
         sp.getViewport().setOpaque(false);
         sp.setBorder(BorderFactory.createLineBorder(new Color(255, 214, 102, 120), 1));
@@ -77,7 +85,7 @@ public final class Popups {
         return card;
     }
 
-    /** "Choose Difficulty": With Clues / Without Clues. onPick receives true for "with clues". */
+    // "Choose Difficulty": With Clues / Without Clues. onPick receives true for "with clues".
     public static JPanel difficulty(Consumer<Boolean> onPick, Runnable onBack) {
         JPanel card = ZooQuestGUI.card(0);
         card.setLayout(new BorderLayout(0, 16));
@@ -100,7 +108,7 @@ public final class Popups {
         return card;
     }
 
-    /** One of the two difficulty cards. Pictures: modes/with_clues.png, modes/without_clues.png. */
+    // One of the two difficulty cards. Pictures: modes/with_clues.png, modes/without_clues.png. 
     private static class ModeCard extends JButton {
         private final boolean withClues;
 

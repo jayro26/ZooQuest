@@ -5,13 +5,15 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.*;
+import main.Achievement;
+import main.Biome;
+import main.Flow;
 import main.exceptions.ZoneLockedException;
-import main.*;
 
-/**
- * NEW BIOME UNLOCKED (layout PDF): new-achievement box, title, picture of the new biome, name,
- * [Go to Biomes] [Play Again] [Main Menu]. Pictures: backgrounds/<biome>_clean.png (no animals).
- */
+/*
+- NEW BIOME UNLOCKED (layout PDF): new-achievement box, title, picture of the new biome, name,
+[Go to Biomes] [Play Again] [Main Menu]. Pictures: backgrounds/<biome>_clean.png (no animals).
+*/
 public class UnlockedPanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final JLabel title = GuiKit.label(" ", 36, true, Color.WHITE);
@@ -23,6 +25,7 @@ public class UnlockedPanel extends ScenePanel implements ZooQuestGUI.Refreshable
 
     public UnlockedPanel(ZooQuestGUI app) {
         this.app = app;
+        setFadeEnabled(true);                          // fade in / out between screens
         setBorder(BorderFactory.createEmptyBorder(20, 50, 26, 50));
         ((BorderLayout) getLayout()).setVgap(12);
 
@@ -47,13 +50,17 @@ public class UnlockedPanel extends ScenePanel implements ZooQuestGUI.Refreshable
         achievementBoxHolder = box;
 
         title.setHorizontalAlignment(SwingConstants.CENTER);
-        JPanel north = GuiKit.transparent(new BorderLayout(10, 0));
-        JPanel west = GuiKit.transparent(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        west.add(box);
-        west.setPreferredSize(new Dimension(340, 72));
-        north.add(west, BorderLayout.WEST);
-        north.add(title, BorderLayout.CENTER);
-        north.add(Box.createHorizontalStrut(340), BorderLayout.EAST);
+        // The title used to sit between two 340 px blocks and was cut to "New Bio..." at the normal window
+        // size. It now has its own full-width row and the achievement box sits centred under it.
+        title.setAlignmentX(CENTER_ALIGNMENT);
+        JPanel boxRow = GuiKit.transparent(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        boxRow.add(box);
+        boxRow.setAlignmentX(CENTER_ALIGNMENT);
+        JPanel north = GuiKit.transparent(null);
+        north.setLayout(new BoxLayout(north, BoxLayout.Y_AXIS));
+        north.add(title);
+        north.add(Box.createVerticalStrut(6));
+        north.add(boxRow);
         add(north, BorderLayout.NORTH);
 
         add(new Picture(), BorderLayout.CENTER);
@@ -61,11 +68,11 @@ public class UnlockedPanel extends ScenePanel implements ZooQuestGUI.Refreshable
         caption.setAlignmentX(CENTER_ALIGNMENT);
         JPanel buttons = GuiKit.transparent(new FlowLayout(FlowLayout.CENTER, 24, 0));
         GuiKit.Btn toBiomes = new GuiKit.Btn("Go to Biomes", GuiKit.GREEN, 250, 48, 18);
-        toBiomes.addActionListener(e -> app.show(ZooQuestGUI.BIOMES));
+        toBiomes.addActionListener(e -> app.showWithLoading(ZooQuestGUI.BIOMES));   // same dim + "Loading...." as opening a biome
         GuiKit.Btn again = new GuiKit.Btn("Play Again", GuiKit.BLUE, 250, 48, 18);
         again.addActionListener(e -> playAgain());
         GuiKit.Btn menu = new GuiKit.Btn("Main Menu", GuiKit.GREY, 250, 48, 18);
-        menu.addActionListener(e -> app.show(ZooQuestGUI.MENU));
+        menu.addActionListener(e -> app.showWithLoading(ZooQuestGUI.MENU));
         buttons.add(toBiomes);
         buttons.add(again);
         buttons.add(menu);
@@ -100,13 +107,13 @@ public class UnlockedPanel extends ScenePanel implements ZooQuestGUI.Refreshable
     private void playAgain() {
         try {
             app.getGameManager().startBiome(Flow.completedIndex);
-            app.show(ZooQuestGUI.ANIMALS);
+            app.showWithLoading(ZooQuestGUI.ANIMALS);
         } catch (ZoneLockedException ex) {
-            app.show(ZooQuestGUI.BIOMES);
+            app.showWithLoading(ZooQuestGUI.BIOMES);
         }
     }
 
-    /** backgrounds/<biome>_clean.png of the new biome. */
+    // backgrounds/<biome>_clean.png of the new biome.
     private class Picture extends JComponent {
         @Override
         protected void paintComponent(Graphics g0) {

@@ -3,13 +3,83 @@ package main.UI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
-import main.*;
+import main.Biome;
 
-public class ScenePanel extends JPanel {
+public class ScenePanel extends JPanel implements Fadable {
     private Biome biome;
     private BufferedImage cached;
     private int cachedW = -1, cachedH = -1;
     private String cachedFor = "";
+
+    // ---- fade support: only the children (buttons, logo, text...) fade; the picture behind them never does
+    private boolean fadeEnabled;
+    private float contentAlpha = 1f;
+    private Timer fadeTimer;
+
+    // Turns the fade in / fade out of this screen's elements on or off (off by default).
+    public void setFadeEnabled(boolean on) {
+        fadeEnabled = on;
+        if (!on) setContentAlpha(1f);
+    }
+
+    @Override
+    public boolean isFadeEnabled() {
+        return fadeEnabled;
+    }
+
+    @Override
+    public float getContentAlpha() {
+        return contentAlpha;
+    }
+
+    // 0 = elements invisible, 1 = fully visible. Has no effect unless fading is enabled.
+    @Override
+    public void setContentAlpha(float a) {
+        contentAlpha = Math.max(0f, Math.min(1f, a));
+        repaint();
+    }
+
+    // Smoothly changes the elements' opacity to {@code target} over {@code ms} milliseconds, then runs {@code done}. 
+    @Override
+    public void fadeTo(float target, int ms, Runnable done) {
+        if (fadeTimer != null) fadeTimer.stop();
+        final float from = contentAlpha;
+        if (ms <= 0 || from == target) {
+            setContentAlpha(target);
+            if (done != null) done.run();
+            return;
+        }
+        final long[] last = { System.nanoTime() };
+        final double[] elapsed = { 0 };
+        fadeTimer = new Timer(15, null);
+        fadeTimer.setCoalesce(true);
+        fadeTimer.addActionListener(e -> {
+            long now = System.nanoTime();                              // a slow frame (e.g. a screen loading its pictures)
+            elapsed[0] += Math.min(40.0, (now - last[0]) / 1e6);       // must not make the fade skip ahead
+            last[0] = now;
+            double t = Math.min(1.0, elapsed[0] / ms);
+            double eased = t * t * (3 - 2 * t);                       // smooth start and end
+            setContentAlpha((float) (from + (target - from) * eased));
+            if (t >= 1.0) {
+                ((Timer) e.getSource()).stop();
+                if (done != null) done.run();
+            }
+        });
+        fadeTimer.start();
+    }
+
+    @Override
+    protected void paintChildren(Graphics g) {
+        if (!fadeEnabled || contentAlpha >= 0.999f) {
+            super.paintChildren(g);
+            return;
+        }
+        if (contentAlpha <= 0.001f) return;                           // fully faded out: draw only the picture
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setComposite(AlphaComposite.SrcOver.derive(contentAlpha));
+        super.paintChildren(g2);
+        g2.dispose();
+    }
 
     public ScenePanel() {
         setLayout(new BorderLayout());

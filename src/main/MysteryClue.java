@@ -1,6 +1,6 @@
 package main;
 
-/** A single clue tied to one animal. */
+// A single clue tied to one animal.
 public class MysteryClue {
     private final String clueId;
     private final String hintText;

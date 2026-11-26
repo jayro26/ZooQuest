@@ -1,6 +1,6 @@
 package main;
 
-/** NEW CODE: jungle zone, created by Biome.create('J', ...). */
+// jungle zone, created by Biome.create('J', ...).
 public class JungleBiome extends Biome {
 
     public JungleBiome(String biomeName, String description, boolean isLocked) {

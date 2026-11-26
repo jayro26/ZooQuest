@@ -5,13 +5,15 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.*;
-import main.*;
+import main.Biome;
+import main.GameDialog;
+import main.GameManager;
 import main.exceptions.ZoneLockedException;
 
 /**
- * CHOOSE BIOME (layout PDF): "<- Back", title, three tall cards (picture + name), arrows when there are more than three.
- * Pictures: biomes/<name>.png (falls back to the biome's clean background, then a placeholder).
- */
+- Biome Panel: "<- Back", title, three tall cards (picture + name), arrows when there are more than three.
+- Pictures: biomes/<name>.png (falls back to the biome's clean background, then a placeholder).
+*/
 public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshable {
     private static final int PER_PAGE = 3;
 
@@ -23,6 +25,7 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
 
     public BiomePanel(ZooQuestGUI app) {
         super("main_screen_background.png");
+        setFadeEnabled(true);                          // fade in / out between screens
         this.app = app;
         setLayout(new BorderLayout(0, 14));
         setBorder(BorderFactory.createEmptyBorder(24, 40, 30, 40));
@@ -72,7 +75,7 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
     private void open(int index) {
         try {
             app.getGameManager().startBiome(index);
-            app.show(ZooQuestGUI.ANIMALS);
+            app.showWithLoading(ZooQuestGUI.ANIMALS);        // "Loading...." for 3 seconds, then the biome
         } catch (ZoneLockedException ex) {
             GameDialog.show(this, "Zone locked", ex.getMessage());
         }

@@ -4,9 +4,9 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
-import main.*;
+import main.Animal;
+import main.Flow;
 
-/** CONGRATULATIONS (layout PDF): picture with all animals, "Congratulations!!", "You Completed <Biome>", Next. */
 public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final JLabel count = GuiKit.label(" ", 28, false, Color.WHITE);
@@ -15,6 +15,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
 
     public CompletePanel(ZooQuestGUI app) {
         this.app = app;
+        setFadeEnabled(true);                          // fade in / out between screens
         setBorder(BorderFactory.createEmptyBorder(20, 60, 24, 60));
         ((BorderLayout) getLayout()).setVgap(12);
 
@@ -59,7 +60,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
         repaint();
     }
 
-    /** backgrounds/<biome>_complete.png, rounded. */
+    // backgrounds/<biome>_complete.png, rounded.
     private static class Picture extends JComponent {
         @Override
         protected void paintComponent(Graphics g0) {
@@ -67,9 +68,14 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
             GuiKit.quality(g);
             int w = getWidth(), h = getHeight();
             if (Flow.biome == null) { g.dispose(); return; }
-            BufferedImage img = GuiImages.scene(Flow.biome, "complete");
+            BufferedImage img = GuiImages.load(GuiImages.sceneFile(Flow.biome, "complete"));
             if (img != null) {
                 GuiImages.drawCover(g, img, 0, 0, w, h, 30);
+            } else if (SceneLayouts.forType(Flow.biome.getBiomeType()).length > 0) {
+                Graphics2D sg = (Graphics2D) g.create();
+                sg.setClip(new RoundRectangle2D.Float(0, 0, w, h, 30, 30));
+                HiddenSceneRenderer.drawScene(sg, Flow.biome, w, h, true, null);
+                sg.dispose();
             } else {
                 g.setPaint(new GradientPaint(0, 0, ScenePanel.top(Flow.biome.getBiomeType()), 0, h, ScenePanel.bottom(Flow.biome.getBiomeType()).brighter()));
                 g.fill(new RoundRectangle2D.Float(0, 0, w, h, 30, 30));

@@ -12,10 +12,10 @@ import java.util.Set;
 import main.exceptions.AnimalNotFoundException;
 import main.exceptions.ZoneLockedException; 
 
-/**
- * Interactive console front-end that connects every class of the project into the
- * application workflow:
- */
+/*
+Interactive console front-end that connects every class of the project into the
+application workflow:
+*/
 public class MenuCoordinator {
 
     private static final String DEFAULT_NAME = "Player";
@@ -30,7 +30,7 @@ public class MenuCoordinator {
         this(saveDir, System.in, System.out);
     }
 
-    /** Streams are injectable so the flow can be scripted/tested. */
+    // Streams are injectable so the flow can be scripted/tested.
     public MenuCoordinator(Path saveDir, InputStream input, PrintStream output) {
         this.in = new Scanner(input);
         this.out = output;
@@ -52,11 +52,11 @@ public class MenuCoordinator {
         }
     }
 
-    /**
-     * uses the same players as the GUI start screen. Saved players are listed; pick one by number,
-     * or type a name: a saved player's name loads that player, any other name creates a new player (saved
-     * right away, so they are listed next time - in the console and in the GUI).
-     */
+    /*
+    uses the same players as the GUI start screen. Saved players are listed; pick one by number,
+    or type a name: a saved player's name loads that player, any other name creates a new player (saved
+    right away, so they are listed next time - in the console and in the GUI).
+    */
     private void startSession() {
         while (true) {
             List<GameManager.SavedPlayer> saved = gm.listSavedPlayers();
@@ -147,10 +147,10 @@ public class MenuCoordinator {
         };
     }
 
-    /**
-     * Runs one biome: animals section -> mystery game.
-     * returns index of the next biome to play immediately, or null to go back to the biome list.
-     */
+    /*
+    Runs one biome: animals section -> mystery game.
+    returns index of the next biome to play immediately, or null to go back to the biome list.
+    */
     private Integer playBiome(int index) {
         try {
             gm.startBiome(index);                                   // throws if the biome is still locked
@@ -169,10 +169,10 @@ public class MenuCoordinator {
 
     // ===================================================== animals section
 
-    /**
-     * Lets the player inspect every animal and read its clue.
-     * returns true when the player chooses to proceed to the mystery game.
-     */
+    /*
+    - Lets the player inspect every animal and read its clue.
+    - returns true when the player chooses to proceed to the mystery game.
+    */
     private boolean animalsSection(Biome biome, int biomeIndex, boolean reviewOnly) {
         List<Animal> animals = biome.getAnimals();
         Set<String> explored = new HashSet<>();
@@ -237,7 +237,7 @@ public class MenuCoordinator {
 
     // ======================================================== mystery game
 
-    /** returns index of the next biome to play immediately, or null to return to the biome list. */
+    // returns index of the next biome to play immediately, or null to return to the biome list.
     private Integer gameSection(int biomeIndex) {
         Biome biome = gm.getCurrentBiome();
         List<Animal> animals = biome.getAnimals();
@@ -299,10 +299,10 @@ public class MenuCoordinator {
         }
     }
 
-    /**
-     * One round: tap -> (clue) + choices -> guess (repeat until right or the player backs out).
-     * returns true only if this round completed the whole biome.
-     */
+    /*
+    - One round: tap -> (clue) + choices -> guess (repeat until right or the player backs out).
+    - returns true only if this round completed the whole biome.
+    */
     private boolean tapAnimal(int slot, Animal target) {
         MysteryClue clue;
         try {

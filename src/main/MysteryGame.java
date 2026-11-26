@@ -13,7 +13,7 @@ public class MysteryGame {
     private final Random random = new Random();
     private final Map<String, Mystery> rounds = new LinkedHashMap<>(); // one Mystery (answer tracker) per tapped animal
 
-    private Animal targetAnimal;               // animal the player tapped, awaiting a guess
+    private Animal targetAnimal; // animal the player tapped, awaiting a guess
     private List<String> currentChoices = List.of();
     private boolean isSolved;
 
@@ -23,7 +23,7 @@ public class MysteryGame {
         this.animals = List.copyOf(animals);
     }
 
-    /** Player taps a hidden animal: reveals its clue and builds the multiple-choice list. */
+    // Player taps a hidden animal: reveals its clue and builds the multiple-choice list.
     public MysteryClue selectHiddenAnimal(String animalName) throws AnimalNotFoundException {
         Animal animal = animals.stream()
                 .filter(a -> a.getName().equalsIgnoreCase(animalName))
@@ -66,7 +66,7 @@ public class MysteryGame {
     public boolean allCluesFound() { return foundAnimals.size() == animals.size(); }
     private void solveMystery() { isSolved = true; }
 
-    /** Wipes all in-biome progress. */
+    // Wipes all in-biome progress.
     public void reset() {
         foundAnimals.clear();
         rounds.clear(); 

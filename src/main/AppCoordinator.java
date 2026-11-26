@@ -10,22 +10,22 @@ import main.exceptions.AnimalNotFoundException;
 import main.exceptions.InsufficientCluesException; 
 import main.exceptions.ZoneLockedException; 
 
-/**
- * Orchestration layer. Drives a complete playthrough through the public APIs of the
- * existing classes without changing any of their internal logic:
- *
- *   ZooQuest (entry) -> AppCoordinator -> GameManager -> UserProfile / Achievement
- *                                                     -> Biome -> MysteryGame -> Animal (+Jungle/Safari/Aquatic)
- *                                                                              -> MysteryClue
- *   Mystery is used here as a per-round answer tracker (one Mystery per tapped animal).
- */
+/*
+- Orchestration layer. Drives a complete playthrough through the public APIs of the
+- existing classes without changing any of their internal logic:
+
+- ZooQuest (entry) -> AppCoordinator -> GameManager -> UserProfile / Achievement
+                                                    -> Biome -> MysteryGame -> Animal (+Jungle/Safari/Aquatic)
+                                                                            -> MysteryClue
+- Mystery is used here as a per-round answer tracker (one Mystery per tapped animal).
+*/
 public class AppCoordinator {
 
     private final Path saveDir;
     private final List<Mystery> roundLog = new ArrayList<>();
     private GameManager gm;
 
-    /** Uses a fresh temp folder so repeated runs never inherit old saves. */
+    // Uses a fresh temp folder so repeated runs never inherit old saves. 
     public AppCoordinator() throws IOException {
         this(Files.createTempDirectory("zooquest-saves"));
     }
@@ -93,7 +93,7 @@ public class AppCoordinator {
         System.out.println("Reloaded -> " + reloaded.getCurrentPlayer().showProgress());
     }
 
-    /** Plays the first {code limit} animals of the current biome. */
+    // Plays the first {code limit} animals of the current biome.
     private void playRounds(int limit) throws AnimalNotFoundException {
         Biome biome = gm.getCurrentBiome();
         List<Animal> animals = biome.getAnimals();

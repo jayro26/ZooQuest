@@ -1,6 +1,6 @@
 package main;
 
-/** NEW CODE: aquatic zone, created by Biome.create('A', ...). */
+// aquatic zone, created by Biome.create('A', ...).
 public class AquaticBiome extends Biome {
 
     public AquaticBiome(String biomeName, String description, boolean isLocked) {

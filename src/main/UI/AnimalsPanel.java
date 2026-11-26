@@ -1,16 +1,16 @@
 package main.UI;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
-import main.*;
+import javax.swing.*;
+import main.Animal;
+import main.Biome;
+import main.Flow;
+import main.GameManager;
 
-/**
- * BIOME screen (layout PDF): title + Exit Biome, a grid of the 10 animals (tap one = details pop-up),
- * and the "Mystery Game x/10" button (explored animals). The button unlocks when all 10 were explored.
- * Pictures: animals/<name>.png.
- */
+// After clicking a biome, it goes to this panel providing the animals on that specific biome.
+
 public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final GameManager gm;
@@ -56,7 +56,7 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
         grid.repaint();
     }
 
-    /** The player opened an animal's details. */
+    // The player opened an animal's details. 
     void markExplored(Animal a) {
         explored.add(a.getName());
         refreshMystery();
@@ -82,18 +82,20 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
         int idx = gm.getCurrentBiomeIndex();
         if (gm.hasNoClueBadge(idx)) {     // nothing to gain from hiding clues: play with clues
             Flow.withClues = true;
-            app.show(ZooQuestGUI.GAME);
+            app.showWithLoading(ZooQuestGUI.GAME);          // "Loading...." for 3 seconds, then the game
             return;
         }
         Overlay.show(app, Popups.difficulty(with -> {
             Overlay.hide(app);
             Flow.withClues = with;
             gm.setClueMode(with);
-            app.show(ZooQuestGUI.GAME);
+            app.showWithLoading(ZooQuestGUI.GAME);          // "Loading...." for 3 seconds, then the game
         }, () -> Overlay.hide(app)), () -> Overlay.hide(app));
     }
 
-    /** One animal card: picture filling the card, name on a plate, tick when opened. */
+    // One animal card: picture filling the card, name on a plate, tick when opened.
+    private static final double PICTURE_SCALE = 0.8;   // animal picture size inside its card (1.0 = fills the card)
+
     private class AnimalTile extends JButton {
         private final Animal animal;
 
@@ -113,15 +115,10 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
             GuiKit.quality(g);
             int w = getWidth(), h = getHeight();
             boolean hover = getModel().isRollover();
-            GuiImages.drawAnimal(g, animal, 0, 0, w, h, 24);
-            g.setPaint(new GradientPaint(0, h - 54, new Color(0, 0, 0, 0), 0, h, new Color(0, 0, 0, 170)));
-            g.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, w, h, 24, 24));
-            g.fillRect(0, h - 54, w, 54);
-            g.setClip(null);
-            g.setFont(new Font("SansSerif", Font.BOLD, 18));
-            g.setColor(Color.WHITE);
-            FontMetrics fm = g.getFontMetrics();
-            g.drawString(animal.getName(), (w - fm.stringWidth(animal.getName())) / 2, h - 14);
+
+            // the animal is drawn complete (fit, not cropped), centred, at 80 % of the card so it stays clear of the
+            // corners; the card shows no name. Change PICTURE_SCALE to make the pictures bigger or smaller.
+            GuiImages.drawAnimal(g, animal, 0, 0, w, h, 24, 0, PICTURE_SCALE);
             g.setColor(hover ? Color.WHITE : explored.contains(animal.getName()) ? new Color(60, 190, 110) : ZooQuestGUI.GOLD);
             g.setStroke(new BasicStroke(hover ? 4f : 2.5f));
             g.drawRoundRect(1, 1, w - 3, h - 3, 24, 24);
@@ -136,7 +133,7 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
         }
     }
 
-    /** "Mystery Game  n/10" in the bottom-right cell. */
+    // "Mystery Game  n/10" in the bottom-right cell.
     private static class MysteryButton extends JButton {
         int count, total = 10;
 

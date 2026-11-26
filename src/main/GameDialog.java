@@ -3,7 +3,7 @@ package main;
 import java.awt.Component;
 import javax.swing.JOptionPane;
 
-/** Small message/choice dialog helper used by the game screens. */
+// Small message/choice dialog helper used by the game screens.
 public final class GameDialog {
     private GameDialog() { }
 
@@ -11,7 +11,7 @@ public final class GameDialog {
         JOptionPane.showMessageDialog(parent, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /** Shows custom options and returns the selected option index, or -1 when closed. */
+    // Shows custom options and returns the selected option index, or -1 when closed.
     public static int show(Component parent, String title, String message, String... options) {
         if (options == null || options.length == 0) {
             show(parent, title, message);

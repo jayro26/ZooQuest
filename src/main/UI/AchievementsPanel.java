@@ -3,7 +3,10 @@ package main.UI;
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
-import main.*;
+import main.Achievement;
+import main.Biome;
+import main.GameManager;
+import main.UserProfile;
 
 public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
@@ -11,6 +14,7 @@ public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Re
 
     public AchievementsPanel(ZooQuestGUI app) {
         super("main_screen_background.png");
+        setFadeEnabled(true);                          // fade in / out between screens
         this.app = app;
         setLayout(new BorderLayout(0, 16));
         setBorder(BorderFactory.createEmptyBorder(26, 44, 30, 44));

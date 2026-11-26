@@ -1,11 +1,11 @@
 package main;
 
-import java.util.List; // NEW CODE
+import java.util.List; 
 
-/** NEW CODE: concrete animal type created by Animal.create('A', ...). */
+// concrete animal type created by Animal.create('A', ...).
 public class Aquatic extends Animal {
 
-    // NEW CODE: the ten aquatic animals. Format per animal:
+    // the ten aquatic animals. Format per animal:
     // { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
     private static final String[][] ANIMAL_DATA = {
         {"Tuna", "Thunnus thynnus", "Carnivore", "Varies (southern bluefin: Endangered)",
@@ -59,7 +59,7 @@ public class Aquatic extends Animal {
          "My wings can stretch wider than a boat and I seat tiny plankton"},
     };
 
-    // NEW CODE: builds the animals of this type (each with its clue) for the biome they live in
+    // builds the animals of this type (each with its clue) for the biome they live in
     static List<Animal> createAnimals(String biomeName) {
         return Animal.fromRows('A', biomeName, ANIMAL_DATA);
     }

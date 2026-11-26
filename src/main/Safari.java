@@ -1,11 +1,11 @@
 package main;
 
-import java.util.List; // NEW CODE
+import java.util.List; 
 
-/** NEW CODE: concrete animal type created by Animal.create('S', ...). */
+// concrete animal type created by Animal.create('S', ...).
 public class Safari extends Animal {
 
-    // NEW CODE: the ten safari animals. Format per animal:
+    // the ten safari animals. Format per animal:
     // { name, species, diet, status, behaviour, uniqueFeature (description), clueHint }
     private static final String[][] ANIMAL_DATA = {
         {"Zebra", "Equus quagga", "Herbivore", "Near Threatened",
@@ -59,7 +59,7 @@ public class Safari extends Animal {
          "I'm nature's clean-up crew and I ride warm air high above the savanna."},
     };
 
-    // NEW CODE: builds the animals of this type (each with its clue) for the biome they live in
+    // builds the animals of this type (each with its clue) for the biome they live in
     static List<Animal> createAnimals(String biomeName) {
         return Animal.fromRows('S', biomeName, ANIMAL_DATA);
     }
@@ -79,5 +79,5 @@ public class Safari extends Animal {
     public String getSpriteTemplate() { return "sprites/savannah_scene.png"; }
 
     @Override
-    public String getRevealMessage() { return "It gallops out of the tall grass and skids to a stop!"; } // NEW CODE
+    public String getRevealMessage() { return "It gallops out of the tall grass and skids to a stop!"; }
 }

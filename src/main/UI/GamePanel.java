@@ -8,14 +8,20 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import main.Animal;
+import main.Biome;
+import main.Flow;
+import main.GameDialog;
+import main.GameManager;
+import main.Hotspots;
+import main.MysteryClue;
 import main.exceptions.AnimalNotFoundException;
-import main.*;
 
-/**
- * Hidden-animal seek-and-find screen.
- * The top strip shows the animals to locate. Their sprites are drawn into the
- * biome scene using the same hotspot rectangles that receive mouse clicks.
- */
+/*
+- Hidden-animal seek-and-find screen.
+- The top strip shows the animals to locate. Their sprites are drawn into the
+biome scene using the same hotspot rectangles that receive mouse clicks.
+*/
 public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final GameManager gm;
@@ -23,9 +29,8 @@ public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final GuiKit.Btn exitBtn = new GuiKit.Btn("Exit Biome", GuiKit.GREY, 145, 40, 15);
     private final JLabel foundCount = GuiKit.label("0 / 10", 25, true, Color.WHITE);
     private final JLabel modeLabel = new JLabel(" ");
-    private final JLabel instruction = GuiKit.label(
-            "Find each animal hidden in the environment. Click an animal when you spot it!",
-            15, true, Color.WHITE);
+    private static final String START_HINT = "Find each animal hidden in the environment. Click an animal when you spot it!";
+    private final JLabel instruction = GuiKit.label(START_HINT, 15, true, Color.WHITE);
     private final JPanel targetStrip = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 5)) {
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
@@ -151,6 +156,7 @@ public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
         if (timer != null) timer.stop();
         finishing = false;
         hover = -1;
+        instruction.setText(START_HINT);
         int currentIndex = gm.getCurrentBiomeIndex();
         nextWasLocked = currentIndex + 1 < gm.getAllBiomes().size()
                 && gm.getAllBiomes().get(currentIndex + 1).isLocked();
@@ -217,10 +223,19 @@ public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
 
     private int hit(Point point) {
         if (biome == null || imgRect[2] <= 1) return -1;
+        int best = -1;
+        double bestDistance = Double.MAX_VALUE;
         for (int i = 0; i < biome.getAnimals().size(); i++) {
-            if (!isFound(i) && rect(i).contains(point)) return i;
+            if (isFound(i)) continue;
+            Rectangle r = rect(i);
+            if (!r.contains(point)) continue;
+            double d = point.distanceSq(r.getCenterX(), r.getCenterY());
+            if (d < bestDistance) {
+                bestDistance = d;
+                best = i;
+            }
         }
-        return -1;
+        return best;
     }
 
     // ------------------------------------------------------------ find animal
@@ -281,9 +296,11 @@ public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
 
     private void toComplete() {
         if (!finishing) return;
-        finishing = false;
-        gm.exitCurrentBiome(); // GameManager has already saved a completed biome.
-        app.show(ZooQuestGUI.COMPLETE);
+        // the finished picture stays on screen while the window dims out; the game is closed once it is black
+        app.showWithDim(ZooQuestGUI.COMPLETE, () -> {
+            finishing = false;
+            gm.exitCurrentBiome(); // GameManager has already saved a completed biome.
+        });
     }
 
     // ------------------------------------------------------------ painting
@@ -302,7 +319,11 @@ public class GamePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
 
         boolean[] found = new boolean[biome.getAnimals().size()];
         for (int i = 0; i < found.length; i++) found[i] = isFound(i);
-        imgRect = HiddenSceneRenderer.drawScene(g, biome, w, h, finishing, found);
+        int sceneTop = topStack.getY() + topStack.getHeight() + 4;
+        int sceneBottom = footer.getY() - 4;
+        if (sceneBottom - sceneTop < 120) { sceneTop = 0; sceneBottom = h; }   // not laid out yet / tiny window
+        imgRect = HiddenSceneRenderer.drawScene(g, biome, new Rectangle(0, 0, w, h),
+                new Rectangle(0, sceneTop, w, sceneBottom - sceneTop), finishing, found);
 
         if (!finishing && hover >= 0 && hover < biome.getAnimals().size()) {
             Rectangle r = rect(hover);

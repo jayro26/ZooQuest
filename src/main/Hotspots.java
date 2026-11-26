@@ -1,20 +1,25 @@
 package main;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import main.UI.GuiImages;
+import main.UI.SceneLayouts;
 
-/**
- * Normalized clickable areas for the ten animal sprites in each biome scene.
- * Values are {x, y, width, height} measured against the cover-scaled scene image.
- * Optional resources/hotspots/<biome>.properties files can override these defaults.
- */
+/*
+- Normalized clickable areas for the ten animal sprites in each biome scene.
+- Values are {x, y, width, height} measured against the scene picture (see HiddenSceneRenderer.drawScene).
+- The areas now come from the reference PowerPoint (SceneLayouts: the box of each animal's picture).
+- The hand-placed arrays below are only used for an animal that is not in the PowerPoint layout.
+- Optional resources/hotspots/<biome>.properties files can still override any animal.
+*/
 public final class Hotspots {
+    private static final String[] DIRS = {
+            "main/resources/", "resources/", "../resources/", "src/main/resources/"
+    };
     private static final Map<String, double[][]> CACHE = new HashMap<>();
 
     // Slightly irregular placements make the scenes feel like seek-and-find puzzles.
@@ -55,6 +60,8 @@ public final class Hotspots {
                 : "Aquatic".equalsIgnoreCase(biome.getBiomeType()) ? AQUATIC : JUNGLE;
         for (int i = 0; i < count; i++) {
             result[i] = defaults[i % defaults.length].clone();
+            SceneLayouts.Layer layer = SceneLayouts.animalLayer(biome.getBiomeType(), biome.getAnimals().get(i).getName());
+            if (layer != null) result[i] = clickable(SceneLayouts.bounds(layer));
             String animalKey = GuiImages.slug(biome.getAnimals().get(i).getName());
             String value = properties == null ? null : properties.getProperty(animalKey);
             if (value == null) continue;
@@ -74,17 +81,31 @@ public final class Hotspots {
         return result;
     }
 
-    private static Properties load(String relativePath) {
-        Path resourcesRoot = ProjectPaths.resourcesDirectory().toAbsolutePath().normalize();
-        Path file = resourcesRoot.resolve(relativePath).normalize();
-        if (!file.startsWith(resourcesRoot) || !Files.isRegularFile(file)) return null;
+    // a tiny animal must still be easy to click: the area is grown (around its centre) to a minimum size.
+    private static double[] clickable(double[] box) {
+        final double minW = 0.045, minH = 0.075;   // fractions of the scene: about 40 x 38 px in a 900 px wide scene
+        double w = Math.max(box[2], minW), h = Math.max(box[3], minH);
+        double x = box[0] + box[2] / 2 - w / 2, y = box[1] + box[3] / 2 - h / 2;
+        x = Math.max(0, Math.min(1 - w, x));
+        y = Math.max(0, Math.min(1 - h, y));
+        return new double[]{x, y, w, h};
+    }
 
-        Properties properties = new Properties();
-        try (InputStream input = Files.newInputStream(file)) {
-            properties.load(input);
-            return properties;
-        } catch (IOException ignored) {
-            return null;
+    private static Properties load(String relativePath) {
+        // src/resources first, then the older relative folders
+        java.util.List<File> candidates = new java.util.ArrayList<>();
+        candidates.add(ProjectPaths.resourcesDirectory().resolve(relativePath).toFile());
+        for (String directory : DIRS) candidates.add(new File(directory + relativePath));
+        for (File file : candidates) {
+            if (!file.isFile()) continue;
+            Properties properties = new Properties();
+            try (FileInputStream input = new FileInputStream(file)) {
+                properties.load(input);
+                return properties;
+            } catch (IOException ignored) {
+                return null;
+            }
         }
+        return null;
     }
 }

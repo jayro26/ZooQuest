@@ -1,22 +1,21 @@
 package main.UI;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage; 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import main.*;
+import javax.swing.*; 
+import main.GameManager;
+import main.ProjectPaths;
 
-/**
- * Main window. Owns the single GameManager and a CardLayout that switches
- * between screens.
- * Teammates add their screens with register("biomes", panel) and move with
- * show("biomes").
- */
+/*
+- Main window. Owns the single GameManager and a CardLayout that switches
+between screens.
+- add their screens with register("biomes", panel) and move with
+show("biomes").
+*/
 public class ZooQuestGUI extends JFrame {
 
     // screen names (shared contract between teammates)
@@ -34,9 +33,22 @@ public class ZooQuestGUI extends JFrame {
     public static final Color GOLD = new Color(255, 214, 102);
     public static final Color PANEL_BG = new Color(20, 40, 28, 205);
 
-    private final GameManager gm = new GameManager(GameManager.defaultSaveDirectory()); // NEW CODE (was: Path.of("saves"))
+    private final GameManager gm = new GameManager(GameManager.defaultSaveDirectory());
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
+
+    // screen transition (only screens with setFadeEnabled(true) fade; their background picture stays)
+    private static final int FADE_OUT_MS = 180, FADE_IN_MS = 260;
+    private boolean fadingOut;
+    private String pendingTarget;
+    private int switchGen;
+    private Fadable startupFade;     // first screen: fades in once the window is on screen
+
+    // "Loading...." screen shown before a biome opens and before the mystery game starts
+    private static final int DIM_MS = 450;        // dim out / dim in between the finished game and the next screens
+    private static final int LOADING_MS = 3000;   // how long the loading screen stays (milliseconds)
+    private boolean loading;
+    private final java.util.Map<String, JPanel> screens = new java.util.HashMap<>();
 
     public ZooQuestGUI() {
         super("ZooQuest");
@@ -62,6 +74,17 @@ public class ZooQuestGUI extends JFrame {
         register(UNLOCKED, new UnlockedPanel(this));
         register(ACHIEVEMENTS, new AchievementsPanel(this));
         register(PROFILE, new ProfilePanel(this));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                Fadable p = startupFade;
+                startupFade = null;
+                if (p != null) {
+                    if (((Component) p).isShowing()) p.fadeTo(1f, FADE_IN_MS, null);
+                    else p.setContentAlpha(1f);
+                }
+            }
+        });
         show(START);
     }
 
@@ -70,20 +93,147 @@ public class ZooQuestGUI extends JFrame {
     }
 
     public void register(String name, JPanel panel) {
+        screens.put(name, panel);
         root.add(panel, name);
     }
 
     public void show(String name) {
-        cards.show(root, name);
+        if (!SwingUtilities.isEventDispatchThread()) { // not on the UI thread: switch at once, no animation
+            switchTo(name, false);
+            return;
+        }
+        if (fadingOut) { // a fade-out is already running: just change where it ends up
+            pendingTarget = name;
+            return;
+        }
+        Component current = visibleScreen();
+        if (current instanceof Fadable cur && cur.isFadeEnabled() && current.isShowing()
+                && cur.getContentAlpha() > 0.01f) {
+            fadingOut = true;
+            pendingTarget = name;
+            cur.fadeTo(0f, FADE_OUT_MS, () -> {
+                fadingOut = false;
+                String target = pendingTarget;
+                pendingTarget = null;
+                switchTo(target, true);
+                cur.setContentAlpha(1f); // it is hidden now; ready for its next visit
+            });
+        } else {
+            switchTo(name, true);
+        }
+    }
+
+    /*
+    - Dims the window by 50 % with "Loading...." at the bottom left for {@link #LOADING_MS}, then moves to the
+    screen and lifts the dimming. Clicks are ignored while it is showing.
+    */
+    public void showWithLoading(String name) {
+        if (!SwingUtilities.isEventDispatchThread()) { // not on the UI thread: no loading screen
+            show(name);
+            return;
+        }
+        if (loading) return;
+        loading = true;
+        System.out.println("[ZooQuest] Loading screen started (" + LOADING_MS + " ms) -> " + name); // shows in the console if this build is running
+        LoadingOverlay ov = new LoadingOverlay(true, 0.5f);
+        setGlassPane(ov);
+        ov.setVisible(true);
+        ov.fadeTo(1f, 250, null);                                  // darken
+        Timer warm = new Timer(450, e -> warmUp(name));            // slow work (pictures) once the screen is fully dimmed
+        warm.setRepeats(false);
+        warm.start();
+        Timer hold = new Timer(LOADING_MS, e -> {
+            show(name);                                            // the new screen is prepared under the dimming
+            Timer reveal = new Timer(FADE_OUT_MS + 60, ev ->       // wait for the old screen's fade-out to finish
+                    ov.fadeTo(0f, 350, () -> {
+                        ov.setVisible(false);
+                        loading = false;
+                    }));
+            reveal.setRepeats(false);
+            reveal.start();
+        });
+        hold.setRepeats(false);
+        hold.start();
+    }
+
+    /** Same as {@link #showWithDim(String, Runnable)} with nothing to do while the screen is black. */
+    public void showWithDim(String name) {
+        showWithDim(name, null);
+    }
+
+    /*
+    - Dims the whole window out to black, switches to {@code name} while it is black (running {@code whileBlack}
+    first, if given), then dims back in to show the new screen. Clicks are ignored meanwhile.
+    */
+    public void showWithDim(String name, Runnable whileBlack) {
+        if (!SwingUtilities.isEventDispatchThread()) { // not on the UI thread: switch at once, no animation
+            if (whileBlack != null) whileBlack.run();
+            show(name);
+            return;
+        }
+        if (loading) return;
+        loading = true;
+        LoadingOverlay ov = new LoadingOverlay(false, 1f);
+        setGlassPane(ov);
+        ov.setVisible(true);
+        ov.fadeTo(1f, DIM_MS, () -> {
+            if (whileBlack != null) whileBlack.run();
+            show(name);
+            Timer reveal = new Timer(FADE_OUT_MS + 120, ev ->           // let the old screen finish fading out
+                    ov.fadeTo(0f, DIM_MS, () -> {
+                        ov.setVisible(false);
+                        loading = false;
+                    }));
+            reveal.setRepeats(false);
+            reveal.start();
+        });
+    }
+
+    // Prepares a screen out of sight (loads its pictures, builds its first frame) so it opens without a stall.
+    private void warmUp(String name) {
+        JPanel p = screens.get(name);
+        if (p == null || root.getWidth() < 10 || root.getHeight() < 10) return;
+        try {
+            if (p instanceof Refreshable r) r.onShow();
+            p.setSize(root.getSize());
+            p.validate();
+            BufferedImage img = new BufferedImage(root.getWidth(), root.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = img.createGraphics();
+            p.paint(g);
+            g.dispose();
+        } catch (RuntimeException ignored) {
+            // warming up is only an optimisation; the real switch below still works without it
+        }
+    }
+
+    private Component visibleScreen() {
         Component c = null;
         for (Component comp : root.getComponents())
             if (comp.isVisible())
                 c = comp;
-        if (c instanceof Refreshable r)
-            r.onShow(); // lets a screen reload fresh data
+        return c;
     }
 
-    /** Implement on a panel to be told when it becomes the visible screen. */
+    private void switchTo(String name, boolean animate) {
+        int gen = ++switchGen;
+        cards.show(root, name);
+        Component c = visibleScreen();
+        Fadable fade = animate && c instanceof Fadable b && b.isFadeEnabled() ? b : null;
+        if (fade != null)
+            fade.setContentAlpha(0f); // starts invisible, so there is no flash before the fade-in
+        if (c instanceof Refreshable r)
+            r.onShow(); // lets a screen reload fresh data
+        if (gen != switchGen)
+            return; // onShow sent the player somewhere else; that switch handles its own fade
+        if (fade != null) {
+            if (isShowing()) fade.fadeTo(1f, FADE_IN_MS, null);
+            else startupFade = fade;
+        } else if (c instanceof Fadable b) {
+            b.setContentAlpha(1f);
+        }
+    }
+
+    // Implement on a panel to be told when it becomes the visible screen.
     public interface Refreshable {
         void onShow();
     }
@@ -114,7 +264,7 @@ public class ZooQuestGUI extends JFrame {
     // ------------------------------------------------------------ shared UI
     // helpers
 
-    /** Rounded translucent box layout panel. */
+    // Rounded translucent box layout panel.
     public static JPanel card(int pad) {
         JPanel p = new JPanel() {
             @Override
@@ -135,7 +285,7 @@ public class ZooQuestGUI extends JFrame {
         return p;
     }
 
-    /** Rounded button with hover effect. */
+    // Rounded button with hover effect.
     public static JButton button(String text, Color base) {
         JButton b = new JButton(text) {
             @Override
@@ -164,58 +314,29 @@ public class ZooQuestGUI extends JFrame {
         return b;
     }
 
-    /**
-     * Loads an image from the project's resources folder. The folder is resolved
-     * through ProjectPaths so this works when launched from the project root,
-     * src, src/main, or the older main/resources layout. A classpath lookup is
-     * also supported for packaged builds that include resources/ in the JAR.
-     */
+    // Looks for the image in the usual resource folders; returns null if not found.
     public static BufferedImage loadImage(String fileName) {
-        if (fileName == null || fileName.isBlank()) {
-            return null;
-        }
-
-        // Accept either slash style, but always resolve the name inside resources.
-        String normalizedName = fileName.trim().replace('\\', '/');
-        while (normalizedName.startsWith("/")) {
-            normalizedName = normalizedName.substring(1);
-        }
-
-        final Path relativePath;
+        if (fileName == null || fileName.isBlank()) return null;
         try {
-            relativePath = Path.of(normalizedName).normalize();
-        } catch (InvalidPathException ignored) {
-            return null;
-        }
-
-        // Do not allow a resource name to escape the resources directory.
-        if (relativePath.isAbsolute() || relativePath.startsWith("..")) {
-            return null;
-        }
-
-        Path resourcesRoot = ProjectPaths.resourcesDirectory().toAbsolutePath().normalize();
-        Path imagePath = resourcesRoot.resolve(relativePath).normalize();
-        if (imagePath.startsWith(resourcesRoot) && Files.isRegularFile(imagePath)) {
-            try {
-                BufferedImage image = ImageIO.read(imagePath.toFile());
-                if (image != null) {
-                    return image;
+            File inResources = ProjectPaths.resourcesDirectory().resolve(fileName).toFile();
+            if (inResources.isFile()) {
+                try {
+                    return ImageIO.read(inResources);
+                } catch (IOException ignored) {
                 }
-            } catch (IOException ignored) {
-                // Try the classpath copy below, if one is available.
+            }
+        } catch (InvalidPathException ignored) {
+        }
+        String[] dirs = { "main/resources/", "resources/", "../resources/", "src/main/resources/" };
+        for (String d : dirs) {
+            File f = new File(d + fileName);
+            if (f.exists()) {
+                try {
+                    return ImageIO.read(f);
+                } catch (IOException ignored) {
+                }
             }
         }
-
-        String classpathName = "resources/" + relativePath.toString().replace('\\', '/');
-        try (InputStream input = ZooQuestGUI.class.getClassLoader()
-                .getResourceAsStream(classpathName)) {
-            if (input != null) {
-                return ImageIO.read(input);
-            }
-        } catch (IOException ignored) {
-            // A missing or unreadable optional image is handled by the caller's fallback.
-        }
-
         return null;
     }
 }

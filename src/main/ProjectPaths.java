@@ -4,21 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Where the project's data folders are, wherever the program is started from
- * (the project folder, src, src/main ...).
- *
- * Layout:   src/main       the code
- *           src/resources  the pictures
- *           src/saves      the saved players
- *
- * The older layout (main/resources and main/saves, with no src folder) still works.
- */
+// Where the project's data folders are, wherever the program is started from (the project folder, src, src/main ...).
+
 public final class ProjectPaths {
     private ProjectPaths() {
     }
 
-    /** The folder that contains "resources" and "saves": src in the current layout, main in the older one. */
+    // The folder that contains "resources" and "saves": src in the current layout, main in the older one.
     public static Path dataRoot() {
         Path here = Path.of("").toAbsolutePath();
 
@@ -42,15 +34,15 @@ public final class ProjectPaths {
         return here.resolve("src");
     }
 
-    /** src/resources: the pictures. */
+    // src/resources: the pictures.
     public static Path resourcesDirectory() {
         return dataRoot().resolve("resources");
     }
 
-    /**
-     * src/saves: the saved players. If it does not exist yet, a "saves" folder left in an old location
-     * (next to src, or in a main folder next to src) is moved here once, so no player is lost.
-     */
+    /*
+    - src/saves: the saved players. If it does not exist yet, a "saves" folder left in an old location
+    (next to src, or in a main folder next to src) is moved here once, so no player is lost.
+    */
     public static Path savesDirectory() {
         Path target = dataRoot().resolve("saves");
         if (!Files.exists(target)) {
@@ -61,7 +53,7 @@ public final class ProjectPaths {
                         Files.createDirectories(target.getParent());
                         Files.move(old, target);
                     } catch (IOException e) {
-                        // could not move it: carry on with the new (empty) folder
+                        // carry on with the new (empty) folder
                     }
                     break;
                 }
