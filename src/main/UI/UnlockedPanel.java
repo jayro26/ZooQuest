@@ -28,6 +28,7 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     private static final int ACH_FADE_OUT_MS = 1000;
     private static final int ACH_STAGGER_MS = 400;         // the next frame appears this much after the one above it
     private final java.util.List<String> achNames = new java.util.ArrayList<>();
+    private final java.util.List<String> achDescs = new java.util.ArrayList<>();
     private float[] achAlpha = new float[0];
     private javax.swing.Timer achTimer;
 
@@ -86,6 +87,7 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     private void stopAchievements() {
         if (achTimer != null) achTimer.stop();
         achNames.clear();
+        achDescs.clear();
         achAlpha = new float[0];
         repaint();
     }
@@ -93,7 +95,8 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     // Starts the pop-ups: every achievement fades in, stays, fades out (see the ACH_ constants), stacked top left.
     private void startAchievements(List<Achievement> list) {
         achNames.clear();
-        for (Achievement a : list) achNames.add(GuiKit.friendly(a));
+        achDescs.clear();
+        for (Achievement a : list) { achNames.add(GuiKit.friendly(a)); achDescs.add(GuiKit.describe(a)); }
         achAlpha = new float[achNames.size()];
         final int n = achNames.size();
         final int total = ACH_FADE_IN_MS + ACH_SHOW_MS + ACH_FADE_OUT_MS;
@@ -121,6 +124,7 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
                 ((javax.swing.Timer) e.getSource()).stop();
                 Rectangle area = achievementArea();
                 achNames.clear();
+                achDescs.clear();
                 achAlpha = new float[0];
                 repaint(area);
             }
@@ -134,8 +138,10 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     }
 
     // Every frame has the same size: ACH_WIDTH wide (a little longer than the longest name) and as high as its two lines.
-    private static final int ACH_WIDTH = 340;              // frame width (at the normal window size)
+    private static final int ACH_WIDTH = 380;              // frame width (at the normal window size)
     private static final int ACH_LINE_GAP = 10;            // space between "New Achievement:" and the name
+    private static final int ACH_DESC_GAP = 6;             // space between the name and the description
+    private static final int ACH_DESC_LINES = 2;           // the description may use up to two lines (the frame always has room for both)
     private static final int ACH_PAD = 14;                 // space between the frame's edge and its text
     private static final int ACH_GAP = 12;                 // space between stacked frames
 
@@ -143,9 +149,12 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
 
     private Font achNameFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, Math.max(14, (int) Math.round(18 * sc))); }
 
+    private Font achDescFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, Math.max(11, (int) Math.round(13 * sc))); }
+
     private int achBoxHeight(double sc) {
         int pad = (int) Math.round(ACH_PAD * sc);
-        return 2 * pad + getFontMetrics(achHeadFont(sc)).getHeight() + ACH_LINE_GAP + getFontMetrics(achNameFont(sc)).getHeight();
+        return 2 * pad + getFontMetrics(achHeadFont(sc)).getHeight() + ACH_LINE_GAP + getFontMetrics(achNameFont(sc)).getHeight()
+                + ACH_DESC_GAP + ACH_DESC_LINES * getFontMetrics(achDescFont(sc)).getHeight();
     }
 
     private Rectangle achievementArea() {
@@ -166,8 +175,8 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
         int x = st.x + (int) Math.round(24 * sc), y = st.y + (int) Math.round(22 * sc);
         int w = (int) Math.round(ACH_WIDTH * sc), boxH = achBoxHeight(sc);
         int gap = (int) Math.round(ACH_GAP * sc), pad = (int) Math.round(ACH_PAD * sc);
-        Font head = achHeadFont(sc), name = achNameFont(sc);
-        FontMetrics hm = g2.getFontMetrics(head), nm = g2.getFontMetrics(name);
+        Font head = achHeadFont(sc), name = achNameFont(sc), desc = achDescFont(sc);
+        FontMetrics hm = g2.getFontMetrics(head), nm = g2.getFontMetrics(name), dm = g2.getFontMetrics(desc);
         for (int i = 0; i < achNames.size() && i < achAlpha.length; i++) {
             float alpha = achAlpha[i] * (isFadeEnabled() ? getContentAlpha() : 1f);
             if (alpha > 0.002f) {
@@ -183,7 +192,13 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
                 int hy = y + pad + hm.getAscent();
                 b.drawString("New Achievement:", x + pad, hy);
                 b.setFont(name);
-                b.drawString(achNames.get(i), x + pad, hy + hm.getDescent() + ACH_LINE_GAP + nm.getAscent());
+                int ny = hy + hm.getDescent() + ACH_LINE_GAP + nm.getAscent();
+                b.drawString(achNames.get(i), x + pad, ny);
+                b.setFont(desc);
+                b.setColor(new Color(225, 232, 228));
+                int dy = ny + nm.getDescent() + ACH_DESC_GAP + dm.getAscent();
+                java.util.List<String> lines = GuiKit.wrap(i < achDescs.size() ? achDescs.get(i) : "", dm, w - 2 * pad);
+                for (int k = 0; k < lines.size() && k < ACH_DESC_LINES; k++) { b.drawString(lines.get(k), x + pad, dy); dy += dm.getHeight(); }
                 b.dispose();
             }
             y += boxH + gap;                                 // the next achievement is stacked below this one

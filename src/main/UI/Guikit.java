@@ -126,12 +126,40 @@ public final class GuiKit {
         if (achievement == null || achievement.getBadgeName() == null) return "Achievement";
         String name = achievement.getBadgeName();
         if (name.endsWith("_no_clue_badge")) {
-            return name.substring(0, name.length() - "_no_clue_badge".length()) + " (no clue)";
+            return badgeTitle(name.substring(0, name.length() - "_no_clue_badge".length()), true);
         }
         if (name.endsWith("_badge")) {
-            return name.substring(0, name.length() - "_badge".length()) + " - Clear badge";
+            return badgeTitle(name.substring(0, name.length() - "_badge".length()), false);
         }
         return name;
+    }
+
+    /** Description of an achievement (see GameManager.badgeDescription to change the text). */
+    public static String describe(Achievement achievement) {
+        if (achievement == null || achievement.getBadgeName() == null) return "";
+        String name = achievement.getBadgeName();
+        if (name.endsWith("_no_clue_badge")) {
+            return main.GameManager.badgeDescription(name.substring(0, name.length() - "_no_clue_badge".length()), true);
+        }
+        if (name.endsWith("_badge")) {
+            return main.GameManager.badgeDescription(name.substring(0, name.length() - "_badge".length()), false);
+        }
+        return achievement.getDescription() == null ? "" : achievement.getDescription();
+    }
+
+    // ---- ACHIEVEMENT NAMES: change the text here. One pair per biome: {with clues, without clues}.
+    // The key is the biome's name as set in GameManager (BIOME_NAMES). Used by the pop-up, the profile and the
+    // Achievements screen.
+    private static final java.util.Map<String, String[]> BADGE_TITLES = java.util.Map.of(
+            "Jungle", new String[]{"Jungle Explorer", "Jungle Detective"},
+            "Safari", new String[]{"Safari Scout", "Safari Ranger"},
+            "Aqua", new String[]{"Ocean Explorer", "Master Diver"});
+
+    /** Name of a biome's badge: {@code noClue} = the one for finishing without any clue. */
+    public static String badgeTitle(String biomeName, boolean noClue) {
+        String[] t = BADGE_TITLES.get(biomeName);
+        if (t != null) return t[noClue ? 1 : 0];
+        return biomeName + (noClue ? " - No-Clue badge" : " - Clear badge");      // a biome without its own names
     }
 
     // Translucent dark plate used behind text over an image.
@@ -201,7 +229,7 @@ public final class GuiKit {
         }
 
         // Back / Exit style: the fill is mostly see-through and the button gets a white border.
-        public static final int GHOST_OPACITY = 75;             // fill opacity in percent (25 = 75% transparent)
+        public static final int GHOST_OPACITY = 75;             // fill opacity in percent (75 = 25% transparent)
 
         public Btn ghost() {
             ghost = true;

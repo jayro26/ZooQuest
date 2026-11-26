@@ -26,7 +26,11 @@ public class GameManager {
 
     private static final char[] BIOME_TYPES = {'J', 'S', 'A'}; // Jungle, Safari, Aquatic
     private static final String[] BIOME_NAMES = {"Jungle", "Safari", "Aqua"};
-    private static final String[] BIOME_DESCRIPTIONS = {"Description 1", "Description 2", "Description 3"};
+    private static final String[] BIOME_DESCRIPTIONS = {
+            "A thick, green rainforest full of tall trees, colorful birds and swinging branches.",
+            "A sunny, grassy land with wide open skies, where big animals roam and graze.",
+            "A deep, blue underwater world full of coral, bubbles and gentle sea creatures."
+    };
     private static final String HIDDEN_CLUE_TEXT = "(clue hidden)";
 
     // the animal descriptions (name, species, diet, status, behaviour, unique feature, clue hint)
@@ -80,7 +84,7 @@ public class GameManager {
         currentPlayer = new UserProfile(username);
         currentBiome = null;
         currentBiomeIndex = -1;
-        resetRunState(); 
+        resetRunState(); // NEW CODE
         buildBiomes();
         loadProgress();
     }
@@ -221,7 +225,7 @@ public class GameManager {
         if (!currentPlayer.hasAchievement(clearBadgeName(biomeName))) {
             Achievement badge = new Achievement(
                     clearBadgeName(biomeName),
-                    "Solved every mystery in " + biomeName,
+                    badgeDescription(biomeName, false),
                     "images/badges/" + biomeName + ".png",
                     LocalDate.now());
             currentPlayer.addAchievement(badge);
@@ -231,7 +235,7 @@ public class GameManager {
         if (!cluesUsed && !currentPlayer.hasAchievement(noClueBadgeName(biomeName))) {
             Achievement badge = new Achievement(
                     noClueBadgeName(biomeName),
-                    "Solved every mystery in " + biomeName + " without using a clue",
+                    badgeDescription(biomeName, true),
                     "images/badges/" + biomeName + "_no_clue.png",
                     LocalDate.now());
             currentPlayer.addAchievement(badge);
@@ -310,14 +314,14 @@ public class GameManager {
             String badgeName = clearBadgeName(biome.getBiomeName()); //  (was: biome.getBiomeName() + "_badge")
             LocalDate date = LocalDate.parse(props.getProperty("badgeDate." + badgeName, LocalDate.now().toString()));
             currentPlayer.addAchievement(new Achievement(badgeName,
-                    "Solved every mystery in " + biome.getBiomeName(),
+                    badgeDescription(biome.getBiomeName(), false),
                     "images/badges/" + biome.getBiomeName() + ".png", date));
 
             //  restore the No-Clue badge when the save contains one
             String noClueDate = props.getProperty("badgeDate." + noClueBadgeName(biome.getBiomeName()));
             if (noClueDate != null) {
                 currentPlayer.addAchievement(new Achievement(noClueBadgeName(biome.getBiomeName()),
-                        "Solved every mystery in " + biome.getBiomeName() + " without using a clue",
+                        badgeDescription(biome.getBiomeName(), true),
                         "images/badges/" + biome.getBiomeName() + "_no_clue.png", parseDateOrToday(noClueDate)));
             }
         }
@@ -446,6 +450,12 @@ public class GameManager {
 
     public static String clearBadgeName(String biomeName) { return biomeName + "_badge"; }
     public static String noClueBadgeName(String biomeName) { return biomeName + "_no_clue_badge"; }
+
+    // ACHIEVEMENT DESCRIPTION (change the text here; used by the pop-up, the profile and the Achievements screen).
+    // biomeName is the biome's name from BIOME_NAMES, e.g. "Jungle", "Safari", "Aqua".
+    public static String badgeDescription(String biomeName, boolean noClue) {
+        return "Found all the animals in the " + biomeName + " Biome" + (noClue ? " without given clues" : "");
+    }
 
     public boolean hasClearBadge(int biomeIndex) {
         requireInitialized();

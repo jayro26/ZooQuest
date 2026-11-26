@@ -203,9 +203,9 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
 
         AchRow(Achievement a) {
             this.a = a;
-            Dimension d = new Dimension(100, 80);
+            Dimension d = new Dimension(100, 96);              // room for the name, a two-line description and the date
             setPreferredSize(d);
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
         }
 
         @Override
@@ -225,13 +225,13 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
             GuiKit.shadowString(g, GuiKit.friendly(a), x, 30);
             g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 13));
             g.setColor(Color.WHITE);
-            String d = a.getDescription();
             FontMetrics fm = g.getFontMetrics();
-            while (fm.stringWidth(d) > w - x - 10 && d.length() > 4) d = d.substring(0, d.length() - 2);
-            g.drawString(d.equals(a.getDescription()) ? d : d + "...", x, 50);
+            int ly = 49;
+            java.util.List<String> lines = GuiKit.wrap(GuiKit.describe(a), fm, w - x - 12);   // up to two lines
+            for (int k = 0; k < lines.size() && k < 2; k++) { g.drawString(lines.get(k), x, ly); ly += 17; }
             g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 12));
             g.setColor(new Color(150, 235, 160));
-            g.drawString("Earned " + a.getDateEarned(), x, 68);
+            g.drawString("Earned " + a.getDateEarned(), x, h - 10);
             g.dispose();
         }
     }
