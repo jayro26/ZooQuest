@@ -41,7 +41,7 @@ public final class SceneLayouts {
         img("scenes/jungle/image10.png", 0.00052, 0.26622, 0.7362, 0.73378, 0, false, false, 1, -0.01492, -0.20022, 0, -0.04433, null, null),
         img("scenes/jungle/image10.png", 0.73568, 0.26622, 0.7362, 0.73378, 0, true, false, 1, -0.01492, -0.20022, 0, -0.04433, null, null),
         img("scenes/jungle/image11.png", 0.14712, 0.32451, 0.13081, 0.09302, 0, false, false, 1, 0, 0, 0, 0, null, null),
-        img("scenes/jungle/animal_gorilla.png", 0.27474, 0.35232, 0.06856, 0.12763, 7.04983, false, false, 1, 0, 0, 0, 0, "gorilla", "Gorilla_hidden).png"),
+        img("scenes/jungle/animal_gorilla.png", 0.27474, 0.35232, 0.06856, 0.12763, 7.04983, false, false, 1, 0, 0, 0, 0, "gorilla", "gorilla_hidden.png"),
         img("scenes/jungle/image9.png", 0.09072, 0.23087, 0.08688, 0.23581, 0, false, false, 1, 0, 0, 0, 0, null, null),
         img("scenes/jungle/image9.png", 0.24255, 0.24712, 0.08688, 0.23581, 0, false, false, 1, 0, 0, 0, 0, null, null),
         img("scenes/jungle/image9.png", 0.51143, 0.39025, 0.08688, 0.23581, 0, false, false, 1, 0, 0, 0, 0, null, null),
