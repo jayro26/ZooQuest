@@ -20,6 +20,6 @@ public final class Flow {
     private Flow() {}
 
     public static String completedLabel() {
-        return biome == null ? "" : biome.getBiomeName() + " (" + biome.getBiomeType() + ")";
+        return biome == null ? "" : biome.getBiomeName();
     }
 }

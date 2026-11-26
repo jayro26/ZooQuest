@@ -30,9 +30,9 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
         setLayout(new BorderLayout(0, 14));
         setBorder(BorderFactory.createEmptyBorder(24, 40, 30, 40));
 
-        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 44, 17);
+        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 44, 17).ghost();
         back.addActionListener(e -> app.show(ZooQuestGUI.MENU));
-        JLabel title = GuiKit.label("Choose Biome", 34, true, ZooQuestGUI.GOLD);
+        JLabel title = GuiKit.title("Choose Biome", 34, true, ZooQuestGUI.GOLD);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         JPanel header = GuiKit.transparent(new BorderLayout(10, 0));
         header.add(back, BorderLayout.WEST);
@@ -124,7 +124,7 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
             } else {
                 g.setPaint(new GradientPaint(ix, iy, ScenePanel.top(biome.getBiomeType()), ix, iy + ih, ScenePanel.bottom(biome.getBiomeType())));
                 g.fillRoundRect(ix, iy, iw, ih, 26, 26);
-                g.setFont(new Font("SansSerif", Font.BOLD, 20));
+                g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 20));
                 g.setColor(new Color(255, 255, 255, 220));
                 String label = locked ? "Locked Biome" : "Biome " + (index + 1);
                 FontMetrics fm = g.getFontMetrics();
@@ -137,12 +137,12 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
             }
 
             int x = 24, y = iy + ih + 44;
-            g.setFont(new Font("SansSerif", Font.BOLD, 32));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 32));
             g.setColor(locked ? new Color(190, 196, 192) : Color.WHITE);
             FontMetrics fm = g.getFontMetrics();
-            g.drawString(biome.getBiomeName(), (w - fm.stringWidth(biome.getBiomeName())) / 2, y);
+            GuiKit.shadowString(g, biome.getBiomeName(), (w - fm.stringWidth(biome.getBiomeName())) / 2, y);
 
-            g.setFont(new Font("SansSerif", Font.PLAIN, 15));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 15));
             g.setColor(GuiKit.SOFT_WHITE);
             int ty = y + 28, lines = 0;
             for (String line : GuiKit.wrap(biome.getDescription(), g.getFontMetrics(), w - 2 * x)) {
@@ -158,9 +158,9 @@ public class BiomePanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
                 case COMPLETED: text = "Completed"; break;
                 default: text = "Perfect run!"; break;
             }
-            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 16));
             g.setColor(locked ? new Color(200, 205, 202) : status == GameManager.BiomeStatus.UNLOCKED ? new Color(150, 235, 160) : ZooQuestGUI.GOLD);
-            g.drawString(text, x, h - 28);
+            GuiKit.shadowString(g, text, x, h - 28);
             if (!locked && status != GameManager.BiomeStatus.UNLOCKED)
                 for (int s = 0; s < GameManager.BADGES_PER_BIOME; s++)
                     GuiKit.star(g, w - 36 - s * 34, h - 34, 14, s < badges ? ZooQuestGUI.GOLD : new Color(255, 255, 255, 60));

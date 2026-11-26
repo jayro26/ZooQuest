@@ -40,17 +40,17 @@ public class StartPanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
 
         JLabel prompt = new JLabel("Enter Your Name");
         prompt.setForeground(Color.WHITE);
-        prompt.setFont(new Font("SansSerif", Font.PLAIN, 22));
+        prompt.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 22));
         prompt.setAlignmentX(CENTER_ALIGNMENT);
 
-        nameField.setFont(new Font("SansSerif", Font.PLAIN, 22));
+        nameField.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 22));
         nameField.setHorizontalAlignment(JTextField.CENTER);
         nameField.setMaximumSize(new Dimension(320, 46));
         nameField.setPreferredSize(new Dimension(320, 46));
         nameField.setAlignmentX(CENTER_ALIGNMENT);
 
         error.setForeground(new Color(255, 140, 120));
-        error.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        error.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 14));
         error.setAlignmentX(CENTER_ALIGNMENT);
 
         GuiKit.Btn start = new GuiKit.Btn("START", GuiKit.GREEN, 260, 48, 20);
@@ -123,7 +123,7 @@ public class StartPanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
 
         JLabel heading = new JLabel("Or pick a saved player");
         heading.setForeground(Color.WHITE);
-        heading.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        heading.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 16));
         heading.setAlignmentX(CENTER_ALIGNMENT);
 
         playerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -170,9 +170,9 @@ public class StartPanel extends BackgroundPanel implements ZooQuestGUI.Refreshab
 
         PlayerRenderer() {
             super(new GridLayout(2, 1));
-            name.setFont(new Font("SansSerif", Font.BOLD, 17));
+            name.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 17));
             name.setForeground(Color.WHITE);
-            summary.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            summary.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 13));
             summary.setForeground(new Color(200, 225, 205));
             add(name);
             add(summary);

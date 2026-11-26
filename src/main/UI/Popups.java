@@ -37,13 +37,13 @@ public final class Popups {
         left.add(pic, BorderLayout.NORTH);
         JPanel names = GuiKit.transparent(null);
         names.setLayout(new BoxLayout(names, BoxLayout.Y_AXIS));
-        JLabel name = GuiKit.label(a.getName(), 28, true, ZooQuestGUI.GOLD);
+        JLabel name = GuiKit.title(a.getName(), 28, true, ZooQuestGUI.GOLD);
         JLabel species = GuiKit.label(a.getSpecies(), 15, false, Color.WHITE);
-        species.setFont(new Font("SansSerif", Font.ITALIC, 15));
+        species.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.ITALIC, 15));
         names.add(name);
         names.add(species);
         left.add(names, BorderLayout.CENTER);
-        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 42, 16);
+        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 42, 16).ghost();
         back.addActionListener(e -> onBack.run());
         JPanel south = GuiKit.transparent(new FlowLayout(FlowLayout.LEFT, 0, 0));
         south.add(back);
@@ -51,7 +51,7 @@ public final class Popups {
         card.add(left, BorderLayout.WEST);
 
         JPanel right = GuiKit.transparent(new BorderLayout(0, 10));
-        JLabel title = GuiKit.label("Description", 22, true, ZooQuestGUI.GOLD);
+        JLabel title = GuiKit.title("Description", 22, true, ZooQuestGUI.GOLD);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         right.add(title, BorderLayout.NORTH);
         String clue = a.getClue() == null ? "-" : a.getClue().getHintText();
@@ -71,7 +71,7 @@ public final class Popups {
         text.setEditable(false);
         text.setOpaque(false);
         text.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-        text.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        text.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 15));
         text.setForeground(Color.WHITE);
         text.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
         text.setCaretPosition(0);
@@ -79,7 +79,7 @@ public final class Popups {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sp.setOpaque(false);
         sp.getViewport().setOpaque(false);
-        sp.setBorder(BorderFactory.createLineBorder(new Color(255, 214, 102, 120), 1));
+        sp.setBorder(BorderFactory.createEmptyBorder());
         right.add(sp, BorderLayout.CENTER);
         card.add(right, BorderLayout.CENTER);
         return card;
@@ -91,7 +91,7 @@ public final class Popups {
         card.setLayout(new BorderLayout(0, 16));
         card.setBorder(BorderFactory.createEmptyBorder(24, 30, 22, 30));
         card.setPreferredSize(new Dimension(780, 500));
-        JLabel title = GuiKit.label("Choose Difficulty", 30, true, ZooQuestGUI.GOLD);
+        JLabel title = GuiKit.title("Choose Difficulty", 30, true, ZooQuestGUI.GOLD);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         card.add(title, BorderLayout.NORTH);
 
@@ -100,7 +100,7 @@ public final class Popups {
         row.add(new ModeCard(false, onPick));
         card.add(row, BorderLayout.CENTER);
 
-        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 42, 16);
+        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 42, 16).ghost();
         back.addActionListener(e -> onBack.run());
         JPanel south = GuiKit.transparent(new FlowLayout(FlowLayout.LEFT, 0, 0));
         south.add(back);
@@ -143,12 +143,12 @@ public final class Popups {
                 g.fillRoundRect(ix, iy, iw, ih, 22, 22);
                 drawIcon(g, ix + iw / 2, iy + ih / 2, Math.min(iw, ih) / 2);
             }
-            g.setFont(new Font("SansSerif", Font.BOLD, 26));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 26));
             g.setColor(Color.WHITE);
             String label = withClues ? "With Clues" : "Without Clues";
             FontMetrics fm = g.getFontMetrics();
-            g.drawString(label, (w - fm.stringWidth(label)) / 2, iy + ih + 44);
-            g.setFont(new Font("SansSerif", Font.PLAIN, 15));
+            GuiKit.shadowString(g, label, (w - fm.stringWidth(label)) / 2, iy + ih + 44);
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 15));
             g.setColor(new Color(215, 235, 215));
             String desc = withClues ? "The clue is shown when you tap an animal."
                     : "Clues stay hidden. Finish without revealing one to earn the No-Clue badge.";

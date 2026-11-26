@@ -77,6 +77,7 @@ public final class SceneLayouts {
         img("scenes/safari/image28.png", 0.72122, 0.5859, 0.19278, 0.13709, 0, false, false, 1, 0, 0, 0, 0, null, null),
         img("scenes/safari/animal_vulture.png", 0.89496, 0.08297, 0.08571, 0.14476, -13.29623, false, false, 1, 0, 0, 0, 0, "vulture", "vulture_hidden.png"),
         img("scenes/safari/image30.png", 0.84098, -0.17227, 0.2459, 0.4, 0, false, false, 1, 0, 0, 0, 0, null, null),
+        img("scenes/safari/animal_giraffe.png", 0.68847, 0.57331, 0.04179, 0.14425, 0, false, false, 1, 0, 0, 0, 0, "giraffe", "giraffe_hidden.png"),
         img("scenes/safari/animal_buffalo.png", 0.70653, 0.68237, 0.16894, 0.25979, 0, false, false, 1, 0, 0, 0, 0, "buffalo", "african_buffalo_hidden.png"),
         img("scenes/safari/image32.png", 0.74499, 0.1361, 0.32596, 0.93422, 0, false, false, 1, -1.14952, 0, 0, 0, null, null),
         img("scenes/safari/image33.png", 0.63744, 0.73795, 0.30631, 0.40841, 0, false, false, 1, 0, 0, 0, 0, null, null),
@@ -95,7 +96,6 @@ public final class SceneLayouts {
         img("scenes/safari/image39.png", 0.5819, 0.62913, 0.10432, 0.08843, 0, false, false, 1, 0, 0, 0, -0.00664, null, null),
         img("scenes/safari/image30.png", 0.17342, 0.52284, 0.09807, 0.15953, 0, false, false, 1, 0, 0, 0, 0, null, null),
         img("scenes/safari/animal_rhino.png", -0.04267, 0.56099, 0.08534, 0.14413, 0, true, false, 1, 0, 0, 0, 0, "rhino", "rhino_hidden.png"),
-        img("scenes/safari/animal_giraffe.png", 0.68847, 0.57331, 0.04179, 0.14425, 0, false, false, 1, 0, 0, 0, 0, "giraffe", "giraffe_hidden.png"),
         img("scenes/safari/animal_hippopotamus.png", 0.13927, 0.66363, 0.11225, 0.15665, 0, false, false, 1, 0, 0, 0, 0, "hippopotamus", "hippo_hidden.png"),
         img("scenes/safari/animal_nile_crocodile.png", 0, 0.91111, 0.12774, 0.12149, 0, true, false, 1, 0, 0, 0, 0, "nile_crocodile", "nile_crocodile_hidden.png")
     };

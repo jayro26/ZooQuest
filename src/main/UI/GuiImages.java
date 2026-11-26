@@ -114,7 +114,7 @@ public final class GuiImages {
         g.setPaint(new GradientPaint(x, y, base.brighter(), x + w, y + h, base.darker()));
         g.fillRoundRect(x, y, w, h, arc, arc);
         g.setColor(new Color(255, 255, 255, 230));
-        g.setFont(new Font("SansSerif", Font.BOLD, Math.max(12, Math.min(w, h) / 2)));
+        g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(12, Math.min(w, h) / 2)));
         FontMetrics fm = g.getFontMetrics();
         g.drawString(letter, x + (w - fm.stringWidth(letter)) / 2, y + (h - fm.getHeight()) / 2 + fm.getAscent());
         g.dispose();
@@ -130,10 +130,7 @@ public final class GuiImages {
         drawAnimal(g, a, x, y, w, h, arc, 0);
     }
 
-    /*
-    - NEW CODE: same, but keeps the bottom {@code bottomReserve} pixels free of the picture (for a name plate).
-    - The box gets a dark backdrop so the animal stands out from a busy background.
-    */
+
     public static void drawAnimal(Graphics2D g0, Animal a, int x, int y, int w, int h, int arc, int bottomReserve) {
         drawAnimal(g0, a, x, y, w, h, arc, bottomReserve, 1.0);
     }
@@ -265,7 +262,7 @@ public final class GuiImages {
         g.setPaint(new GradientPaint(x, y, new Color(60, 80, 66), x, y + h, new Color(28, 44, 34)));
         g.fillRoundRect(x, y, w, h, arc, arc);
         g.setColor(ZooQuestGUI.GOLD);
-        g.setFont(new Font("SansSerif", Font.BOLD, Math.max(16, Math.min(w, h) * 6 / 10)));
+        g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(16, Math.min(w, h) * 6 / 10)));
         FontMetrics fm = g.getFontMetrics();
         g.drawString("?", x + (w - fm.stringWidth("?")) / 2, y + (h - fm.getHeight()) / 2 + fm.getAscent());
         g.dispose();

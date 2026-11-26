@@ -56,7 +56,7 @@ final class LoadingOverlay extends JComponent {
         g.fillRect(0, 0, getWidth(), getHeight());
         if (!showText) { g.dispose(); return; }
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setFont(new Font("SansSerif", Font.BOLD, Math.max(18, Math.min(30, getHeight() / 26))));
+        g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(18, Math.min(30, getHeight() / 26))));
         int x = 28, y = getHeight() - 28;                       // bottom left
         g.setColor(new Color(0f, 0f, 0f, 0.6f * amount));
         g.drawString(TEXT, x + 2, y + 2);

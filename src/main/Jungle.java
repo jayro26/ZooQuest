@@ -2,7 +2,7 @@ package main;
 
 import java.util.List;
 
-// NEW CODE: concrete animal type created by Animal.create('J', ...). 
+// concrete animal type created by Animal.create('J', ...). 
 public class Jungle extends Animal {
 
     // the ten jungle animals. Format per animal:
@@ -79,5 +79,5 @@ public class Jungle extends Animal {
     public String getSpriteTemplate() { return "sprites/jungle_scene.png"; }
 
     @Override
-    public String getRevealMessage() { return "It swings down from the canopy and drops in front of you!"; } // NEW CODE
+    public String getRevealMessage() { return "It swings down from the canopy and drops in front of you!"; }
 }

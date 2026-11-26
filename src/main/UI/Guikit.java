@@ -30,9 +30,71 @@ public final class GuiKit {
         return p;
     }
 
+    // Shadow under gold and title text: black at 40%, a little down and to the right.
+    public static final int SHADOW_PERCENT = 40;
+
+    private static Color shadowColor() {
+        return new Color(0, 0, 0, Math.round(255 * SHADOW_PERCENT / 100f));
+    }
+
+    private static int shadowOffset(Font f) {
+        return Math.max(2, f.getSize() / 14);
+    }
+
+    // Draws the text with the shadow under it, in the graphics' current font and colour.
+    public static void shadowString(Graphics2D g, String text, int x, int y) {
+        Color c = g.getColor();
+        int off = shadowOffset(g.getFont());
+        g.setColor(shadowColor());
+        g.drawString(text, x + off, y + off);
+        g.setColor(c);
+        g.drawString(text, x, y);
+    }
+
+    // A label whose text has the shadow (used for the titles and gold texts).
+    public static class ShadowLabel extends JLabel {
+        private boolean shadowPass;
+
+        public ShadowLabel(String text) {
+            super(text);
+        }
+
+        @Override
+        public Color getForeground() {
+            return shadowPass ? shadowColor() : super.getForeground();
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+            int off = shadowOffset(getFont());
+            return new Dimension(d.width + off, d.height + off);       // room for the shadow
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D sg = (Graphics2D) g.create();
+            int off = shadowOffset(getFont());
+            sg.translate(off, off);
+            shadowPass = true;
+            super.paintComponent(sg);
+            shadowPass = false;
+            sg.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    // Like label(...), but with the shadow: for titles and gold texts.
+    public static JLabel title(String text, int fontSize, boolean bold, Color color) {
+        JLabel label = new ShadowLabel(text);
+        label.setFont(new Font(ZooQuestGUI.FONT_NAME, bold ? Font.BOLD : Font.PLAIN, fontSize));
+        label.setForeground(color);
+        return label;
+    }
+
     public static JLabel label(String text, int fontSize, boolean bold, Color color) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", bold ? Font.BOLD : Font.PLAIN, fontSize));
+        label.setFont(new Font(ZooQuestGUI.FONT_NAME, bold ? Font.BOLD : Font.PLAIN, fontSize));
         label.setForeground(color);
         return label;
     }
@@ -111,11 +173,16 @@ public final class GuiKit {
     public static class Btn extends JButton {
         private Color base;
         private boolean selected;
+        private boolean ghost;                                  // see ghost()
+        private boolean lightBorder;                            // see lightBorder()
 
         public Btn(String text, Color base, int width, int height, int fontSize) {
             super(text);
             this.base = base == null ? GREY : base;
-            setFont(new Font("SansSerif", Font.BOLD, fontSize));
+            Font f = new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, fontSize);
+            if (text != null && f.canDisplayUpTo(text) != -1)          // e.g. the arrows of the Back buttons: the program's font
+                f = new Font("SansSerif", Font.BOLD, fontSize);         // lacks them, so those buttons use a font that has them
+            setFont(f);
             setForeground(Color.WHITE);
             setContentAreaFilled(false);
             setBorderPainted(false);
@@ -131,6 +198,22 @@ public final class GuiKit {
 
         public Btn(String text, Color base) {
             this(text, base, 260, 48, 18);
+        }
+
+        // Back / Exit style: the fill is mostly see-through and the button gets a white border.
+        public static final int GHOST_OPACITY = 75;             // fill opacity in percent (25 = 75% transparent)
+
+        public Btn ghost() {
+            ghost = true;
+            repaint();
+            return this;
+        }
+
+        // Solid button with a border in its own colour, a little lighter.
+        public Btn lightBorder() {
+            lightBorder = true;
+            repaint();
+            return this;
         }
 
         public void setBase(Color color) {
@@ -151,8 +234,28 @@ public final class GuiKit {
             if (!isEnabled()) fill = new Color(70, 78, 72);
             else if (getModel().isPressed()) fill = base.darker();
             else if (getModel().isRollover()) fill = base.brighter();
-            g.setColor(fill);
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
+            if (ghost) {
+                int a = Math.round(255 * GHOST_OPACITY / 100f);
+                if (!isEnabled()) a = a * 2 / 3;
+                else if (getModel().isPressed()) a = Math.min(255, a * 2 + 40);
+                else if (getModel().isRollover()) a = Math.min(255, a * 2);
+                g.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), a));
+                g.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
+                g.setColor(new Color(255, 255, 255, isEnabled() ? 255 : 120));
+                g.setStroke(new BasicStroke(2f));
+                g.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
+            } else {
+                g.setColor(fill);
+                g.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
+            }
+            if (lightBorder && !ghost) {
+                Color b = isEnabled() ? base : fill;
+                g.setColor(new Color(b.getRed() + (255 - b.getRed()) * 40 / 100,
+                        b.getGreen() + (255 - b.getGreen()) * 40 / 100,
+                        b.getBlue() + (255 - b.getBlue()) * 40 / 100));
+                g.setStroke(new BasicStroke(2f));
+                g.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
+            }
             if (selected) {
                 g.setColor(ZooQuestGUI.GOLD);
                 g.setStroke(new BasicStroke(2.5f));

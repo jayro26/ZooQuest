@@ -37,6 +37,43 @@ public class ZooQuestGUI extends JFrame {
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
+    // The game is 16:9. The window can be resized and maximised freely: the background of every screen fills the whole
+    // window, while the elements (buttons, logo, text...) stay in a centred 16:9 area ("stage") that is as large as fits.
+    // The font of the whole program (every piece of text uses it). Change this one line to change all fonts.
+    public static final String FONT_NAME = "Comic Sans MS";
+
+    private static final double STAGE_ASPECT = 16.0 / 9.0;
+    private static final int START_WIDTH = 1152;               // size of the window's content when the game opens (1152 x 648)
+    private static final int MIN_STAGE_WIDTH = 960;            // smallest content the window may shrink to (960 x 540)
+
+    // The centred 16:9 area of a w x h screen.
+    public static Rectangle stageBox(int w, int h) {
+        int sw = (int) Math.min(w, Math.floor(h * STAGE_ASPECT));
+        int sh = (int) Math.round(sw / STAGE_ASPECT);
+        return new Rectangle((w - sw) / 2, (h - sh) / 2, sw, sh);
+    }
+
+    // The picture frame of the Completed and the New Biome Unlocked screens: the same size on both (a fixed share of the
+    // stage), 16:9, centred inside the picture component (smaller only if the component is too small for it).
+    private static final double PICTURE_SHARE = 0.52;
+
+    public static Rectangle pictureFrame(JComponent picture) {
+        int w = picture.getWidth(), h = picture.getHeight();
+        Container panel = SwingUtilities.getAncestorOfClass(ScenePanel.class, picture);
+        Rectangle stage = stageBox(panel != null ? panel.getWidth() : w, panel != null ? panel.getHeight() : h);
+        int fw = (int) Math.min(Math.round(stage.width * PICTURE_SHARE), Math.min(w, Math.floor(h * SceneLayouts.ASPECT)));
+        int fh = (int) Math.round(fw / SceneLayouts.ASPECT);
+        return new Rectangle((w - fw) / 2, (h - fh) / 2, fw, fh);
+    }
+
+    // The space around the stage, used as the insets of every screen so its layout stays inside the stage.
+    public static Insets stageInsets(Component c) {
+        int w = c.getWidth(), h = c.getHeight();
+        if (w <= 0 || h <= 0) return new Insets(0, 0, 0, 0);
+        Rectangle r = stageBox(w, h);
+        return new Insets(r.y, r.x, h - r.y - r.height, w - r.x - r.width);
+    }
+
     // screen transition (only screens with setFadeEnabled(true) fade; their background picture stays)
     private static final int FADE_OUT_MS = 180, FADE_IN_MS = 260;
     private boolean fadingOut;
@@ -50,8 +87,20 @@ public class ZooQuestGUI extends JFrame {
     private boolean loading;
     private final java.util.Map<String, JPanel> screens = new java.util.HashMap<>();
 
+    // Gives the standard Swing pieces (text fields, tooltips, lists, dialogs...) the program's font too.
+    private static void applyFontToDefaults() {
+        javax.swing.UIDefaults defaults = UIManager.getDefaults();
+        java.util.List<Object> keys = java.util.Collections.list(defaults.keys());
+        for (Object key : keys) {
+            Object value = defaults.get(key);
+            if (value instanceof javax.swing.plaf.FontUIResource f)
+                UIManager.put(key, new javax.swing.plaf.FontUIResource(FONT_NAME, f.getStyle(), f.getSize()));
+        }
+    }
+
     public ZooQuestGUI() {
         super("ZooQuest");
+        applyFontToDefaults();
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -60,9 +109,8 @@ public class ZooQuestGUI extends JFrame {
             }
         });
         setContentPane(root);
-        setMinimumSize(new Dimension(800, 560));
-        setSize(1000, 680);
-        setLocationRelativeTo(null);
+        setResizable(true);
+        openWithStage();
 
         register(START, new StartPanel(this));
         register(MENU, new MainMenuPanel(this));
@@ -128,7 +176,13 @@ public class ZooQuestGUI extends JFrame {
     screen and lifts the dimming. Clicks are ignored while it is showing.
     */
     public void showWithLoading(String name) {
+        showWithLoading(name, null);
+    }
+
+    /** Same, but runs {@code beforeShow} (if given) once the loading time is over, just before the new screen is shown. */
+    public void showWithLoading(String name, Runnable beforeShow) {
         if (!SwingUtilities.isEventDispatchThread()) { // not on the UI thread: no loading screen
+            if (beforeShow != null) beforeShow.run();
             show(name);
             return;
         }
@@ -143,6 +197,7 @@ public class ZooQuestGUI extends JFrame {
         warm.setRepeats(false);
         warm.start();
         Timer hold = new Timer(LOADING_MS, e -> {
+            if (beforeShow != null) beforeShow.run();
             show(name);                                            // the new screen is prepared under the dimming
             Timer reveal = new Timer(FADE_OUT_MS + 60, ev ->       // wait for the old screen's fade-out to finish
                     ov.fadeTo(0f, 350, () -> {
@@ -187,6 +242,25 @@ public class ZooQuestGUI extends JFrame {
             reveal.setRepeats(false);
             reveal.start();
         });
+    }
+
+    // Sizes the window so its content is START_WIDTH wide (16:9) (smaller if the screen is small) and sets the smallest size.
+    private void openWithStage() {
+        Rectangle usable = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int sw = START_WIDTH;
+        root.setPreferredSize(new Dimension(sw, (int) Math.round(sw / STAGE_ASPECT)));
+        pack();
+        if (getWidth() > usable.width || getHeight() > usable.height) {
+            Insets in = getInsets();
+            int maxW = usable.width - in.left - in.right, maxH = usable.height - in.top - in.bottom;
+            sw = Math.max(MIN_STAGE_WIDTH, (int) Math.min(maxW, Math.floor(maxH * STAGE_ASPECT)));
+            root.setPreferredSize(new Dimension(sw, (int) Math.round(sw / STAGE_ASPECT)));
+            pack();
+        }
+        Insets in = getInsets();
+        setMinimumSize(new Dimension(MIN_STAGE_WIDTH + in.left + in.right,
+                (int) Math.round(MIN_STAGE_WIDTH / STAGE_ASPECT) + in.top + in.bottom));
+        setLocationRelativeTo(null);
     }
 
     // Prepares a screen out of sight (loads its pictures, builds its first frame) so it opens without a stall.
@@ -249,7 +323,7 @@ public class ZooQuestGUI extends JFrame {
         JPanel card = card(30);
         JLabel l = new JLabel(title + " (coming soon)", SwingConstants.CENTER);
         l.setForeground(Color.WHITE);
-        l.setFont(new Font("SansSerif", Font.BOLD, 24));
+        l.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 24));
         l.setAlignmentX(Component.CENTER_ALIGNMENT);
         JButton back = button("Back", new Color(90, 90, 90));
         back.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -300,7 +374,7 @@ public class ZooQuestGUI extends JFrame {
                 super.paintComponent(g);
             }
         };
-        b.setFont(new Font("SansSerif", Font.BOLD, 18));
+        b.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 18));
         b.setForeground(Color.WHITE);
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);

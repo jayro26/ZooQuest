@@ -14,22 +14,21 @@ import main.GameManager;
 public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
     private final GameManager gm;
-    private final JLabel title = new JLabel(" ");
+    private final JLabel title = new GuiKit.ShadowLabel(" ");
     private final JPanel grid = GuiKit.transparent(new GridLayout(3, 4, 14, 14));
     private final Set<String> explored = new HashSet<>();
     private final MysteryButton mystery = new MysteryButton();
-    private boolean reviewOnly;
 
     public AnimalsPanel(ZooQuestGUI app) {
         this.app = app;
         this.gm = app.getGameManager();
-        title.setFont(new Font("SansSerif", Font.BOLD, 36));
+        title.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 36));
         title.setForeground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(26, 40, 30, 40));
         ((BorderLayout) getLayout()).setVgap(18);
 
-        GuiKit.Btn exit = new GuiKit.Btn("Exit Biome", GuiKit.GREY, 160, 42, 16);
-        exit.addActionListener(e -> { gm.exitCurrentBiome(); app.show(ZooQuestGUI.BIOMES); });
+        GuiKit.Btn exit = new GuiKit.Btn("Exit Biome", GuiKit.GREY, 160, 42, 16).ghost();
+        exit.addActionListener(e -> app.showWithLoading(ZooQuestGUI.BIOMES, gm::exitCurrentBiome));   // same dim + "Loading...." as entering a biome
         JPanel header = GuiKit.transparent(new BorderLayout());
         header.add(title, BorderLayout.WEST);
         header.add(exit, BorderLayout.EAST);
@@ -45,7 +44,9 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
         if (b == null) { app.show(ZooQuestGUI.BIOMES); return; }
         setBiome(b);
         explored.clear();
-        reviewOnly = gm.getBiomeStatus(gm.getCurrentBiomeIndex()) == GameManager.BiomeStatus.PERFECT;
+        GameManager.BiomeStatus status = gm.getBiomeStatus(gm.getCurrentBiomeIndex());
+        if (status == GameManager.BiomeStatus.COMPLETED || status == GameManager.BiomeStatus.PERFECT)
+            for (Animal a : b.getAnimals()) explored.add(a.getName());   // finished before: its animals stay checked (saved with the progress)
         title.setText(b.getBiomeName());
         grid.removeAll();
         for (Animal a : b.getAnimals()) grid.add(new AnimalTile(a));
@@ -72,19 +73,12 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
         int total = gm.getCurrentBiome().getAnimals().size();
         mystery.count = explored.size();
         mystery.total = total;
-        mystery.setEnabled(explored.size() == total && !reviewOnly);
-        mystery.setToolTipText(reviewOnly ? "Both badges earned - review mode"
-                : explored.size() == total ? "Start the mystery game" : "Open every animal first");
+        mystery.setEnabled(explored.size() == total);      // can be played again even with both badges
+        mystery.setToolTipText(explored.size() == total ? "Start the mystery game" : "Open every animal first");
         mystery.repaint();
     }
 
     private void startMystery() {
-        int idx = gm.getCurrentBiomeIndex();
-        if (gm.hasNoClueBadge(idx)) {     // nothing to gain from hiding clues: play with clues
-            Flow.withClues = true;
-            app.showWithLoading(ZooQuestGUI.GAME);          // "Loading...." for 3 seconds, then the game
-            return;
-        }
         Overlay.show(app, Popups.difficulty(with -> {
             Overlay.hide(app);
             Flow.withClues = with;
@@ -158,10 +152,10 @@ public class AnimalsPanel extends ScenePanel implements ZooQuestGUI.Refreshable 
             g.setStroke(new BasicStroke(2.5f));
             g.drawRoundRect(1, 1, w - 3, h - 3, 24, 24);
             g.setColor(on ? Color.WHITE : new Color(170, 178, 172));
-            g.setFont(new Font("SansSerif", Font.BOLD, 22));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 22));
             FontMetrics fm = g.getFontMetrics();
             g.drawString("Mystery Game", (w - fm.stringWidth("Mystery Game")) / 2, h / 2 - 2);
-            g.setFont(new Font("SansSerif", Font.PLAIN, 20));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 20));
             fm = g.getFontMetrics();
             String c = count + "/" + total;
             g.drawString(c, (w - fm.stringWidth(c)) / 2, h / 2 + 28);

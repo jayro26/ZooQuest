@@ -18,8 +18,13 @@ import main.Hotspots;
 
 public final class HiddenSceneRenderer {
     private static final int MIN_WIDTH = 512;     // composed image width is a multiple of 256 between these two
-    private static final int MAX_WIDTH = 2560;
-    private static final Map<String, Composed> CACHE = new HashMap<>();
+    private static final int MAX_WIDTH = 3584;    // the zoomed view of the mystery game needs a bigger picture
+    private static final Map<String, Composed> CACHE = new java.util.LinkedHashMap<>(4, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, Composed> eldest) {
+            return size() > 3;                      // normal size + zoomed size (+ one spare after a window resize)
+        }
+    };
+    private static final java.util.Set<String> MISSING = new java.util.HashSet<>();   // biomes whose pictures are not there
 
     // Green frame and tick around a found animal. Set to false for the animal to just turn to colour.
     private static final boolean SHOW_FOUND_MARK = true;
@@ -32,6 +37,7 @@ public final class HiddenSceneRenderer {
         final String biomeType;
         final BufferedImage scene;      // every animal still hidden (black silhouette)
         final BufferedImage tiny;
+        BufferedImage soft;             // the tiny copy enlarged step by step, so the border is smooth, not blocky
         BufferedImage revealed;         // every animal in colour, in its own place among the scenery (built when first needed)
         final Map<String, Patch> patches = new HashMap<>();   // small coloured areas of found animals
         Composed(int width, String biomeType, BufferedImage scene, BufferedImage tiny) {
@@ -79,16 +85,7 @@ public final class HiddenSceneRenderer {
         }
 
         // 1) blurred border over the whole panel: a tiny copy of the scene, stretched (cover) and darkened
-        Graphics2D bg = (Graphics2D) g.create();
-        bg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        double cover = Math.max(panel.width / (double) composed.tiny.getWidth(),
-                panel.height / (double) composed.tiny.getHeight());
-        int bw = (int) Math.ceil(composed.tiny.getWidth() * cover), bh = (int) Math.ceil(composed.tiny.getHeight() * cover);
-        bg.setClip(panel);
-        bg.drawImage(composed.tiny, panel.x + (panel.width - bw) / 2, panel.y + (panel.height - bh) / 2, bw, bh, null);
-        bg.setColor(new Color(0, 0, 0, 70));
-        bg.fillRect(panel.x, panel.y, panel.width, panel.height);
-        bg.dispose();
+        drawBorder(g, composed, panel);
 
         // 2) the scene itself, whole: animals hidden, or all in colour when the game is completed
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -99,30 +96,7 @@ public final class HiddenSceneRenderer {
 
         // 3) animals the player has found: each black silhouette is replaced by the coloured animal in exactly the same
         //    place and the same stacking order (still behind any tree or rock the PowerPoint puts in front of it).
-        //    Only a small patch around the animal is redrawn, with all the layers in their original order.
-        if (!completed && found != null) {
-            List<Animal> animals = biome.getAnimals();
-            for (int i = 0; i < animals.size(); i++) {
-                if (i >= found.length || !found[i]) continue;
-                SceneLayouts.Layer layer = SceneLayouts.animalLayer(biome.getBiomeType(), animals.get(i).getName());
-                if (layer == null) continue;
-                Patch patch = foundPatch(composed, biome, i, layer, found);
-                Graphics2D sg = (Graphics2D) g.create();
-                sg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                sg.clipRect(x, y, fitW, fitH);
-                sg.translate(x, y);
-                sg.scale(fitW / (double) composed.width, fitH / (double) composed.height());
-                sg.clip(new Rectangle(patch.x, patch.y, patch.image.getWidth(), patch.image.getHeight()));
-                sg.drawImage(patch.image, patch.x, patch.y, null);
-                sg.dispose();
-                if (SHOW_FOUND_MARK) {
-                    Graphics2D mg = (Graphics2D) g.create();
-                    mg.clipRect(x, y, fitW, fitH);
-                    drawFoundMark(mg, toRectangle(imageRect, SceneLayouts.bounds(layer)));
-                    mg.dispose();
-                }
-            }
-        }
+        if (!completed && found != null) drawFound(g, composed, biome, found, imageRect, SHOW_FOUND_MARK);
         return imageRect;
     }
 
@@ -138,16 +112,17 @@ public final class HiddenSceneRenderer {
 
     private static synchronized Composed compose(String biomeType, int fitWidth) {
         int width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, (int) Math.ceil(fitWidth / 256.0) * 256));
-        String key = biomeType == null ? "" : biomeType.toLowerCase();
+        String type = biomeType == null ? "" : biomeType.toLowerCase();
+        String key = type + "@" + width;
         Composed cached = CACHE.get(key);
-        if (cached != null && cached.width == width) return cached;
-        if (cached == null && CACHE.containsKey(key)) return null;   // tried before, pictures are missing
+        if (cached != null) return cached;
+        if (MISSING.contains(type)) return null;   // tried before, pictures are missing
 
         BufferedImage scene = composeLayers(biomeType, width, false);
         if (scene == null) {
             System.err.println("ZooQuest: the scene pictures were not found in "
                     + main.ProjectPaths.resourcesDirectory().resolve("scenes") + " - copy the scenes folder there.");
-            CACHE.put(key, null);
+            MISSING.add(type);
             return null;
         }
 
@@ -208,6 +183,125 @@ public final class HiddenSceneRenderer {
         Patch made = new Patch(area.x, area.y, img);
         c.patches.put(key.toString(), made);
         return made;
+    }
+
+    // Draws the coloured patches (and, if wanted, the green marks) of the found animals over a scene drawn at imageRect.
+    private static void drawFound(Graphics2D g, Composed composed, Biome biome, boolean[] found, int[] imageRect,
+                                  boolean marks) {
+        int x = imageRect[0], y = imageRect[1], fitW = imageRect[2], fitH = imageRect[3];
+        List<Animal> animals = biome.getAnimals();
+        for (int i = 0; i < animals.size(); i++) {
+            if (i >= found.length || !found[i]) continue;
+            SceneLayouts.Layer layer = SceneLayouts.animalLayer(biome.getBiomeType(), animals.get(i).getName());
+            if (layer == null) continue;
+            Patch patch = foundPatch(composed, biome, i, layer, found);
+            Graphics2D sg = (Graphics2D) g.create();
+            sg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            sg.clipRect(x, y, fitW, fitH);
+            sg.translate(x, y);
+            sg.scale(fitW / (double) composed.width, fitH / (double) composed.height());
+            sg.clip(new Rectangle(patch.x, patch.y, patch.image.getWidth(), patch.image.getHeight()));
+            sg.drawImage(patch.image, patch.x, patch.y, null);
+            sg.dispose();
+            if (marks && SHOW_FOUND_MARK) {
+                Graphics2D mg = (Graphics2D) g.create();
+                mg.clipRect(x, y, fitW, fitH);
+                drawFoundMark(mg, toRectangle(imageRect, SceneLayouts.bounds(layer)));
+                mg.dispose();
+            }
+        }
+    }
+
+    // The tiny copy enlarged to 384x216 in smooth steps and blurred, so the border looks soft instead of blocky.
+    private static BufferedImage smoothBorder(BufferedImage tiny) {
+        BufferedImage step = tiny;
+        for (int k = 0; k < 2; k++) {                                   // 96x54 -> 192x108 -> 384x216
+            BufferedImage bigger = new BufferedImage(step.getWidth() * 2, step.getHeight() * 2, BufferedImage.TYPE_INT_RGB);
+            Graphics2D sg = bigger.createGraphics();
+            sg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            sg.drawImage(step, 0, 0, bigger.getWidth(), bigger.getHeight(), null);
+            sg.dispose();
+            step = bigger;
+        }
+        int n = 9;                                                      // box blur 9x9, twice
+        float[] k = new float[n * n];
+        java.util.Arrays.fill(k, 1f / (n * n));
+        java.awt.image.ConvolveOp blur = new java.awt.image.ConvolveOp(new java.awt.image.Kernel(n, n, k),
+                java.awt.image.ConvolveOp.EDGE_NO_OP, null);
+        for (int pass = 0; pass < 2; pass++) step = blur.filter(step, null);
+        return step;
+    }
+
+    // The blurred, darkened copy of the scene that fills the whole panel behind the scene picture.
+    private static void drawBorder(Graphics2D g, Composed composed, Rectangle panel) {
+        Graphics2D bg = (Graphics2D) g.create();
+        bg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        if (composed.soft == null) composed.soft = smoothBorder(composed.tiny);
+        double cover = Math.max(panel.width / (double) composed.soft.getWidth(),
+                panel.height / (double) composed.soft.getHeight());
+        int bw = (int) Math.ceil(composed.soft.getWidth() * cover), bh = (int) Math.ceil(composed.soft.getHeight() * cover);
+        bg.setClip(panel);
+        bg.drawImage(composed.soft, panel.x + (panel.width - bw) / 2, panel.y + (panel.height - bh) / 2, bw, bh, null);
+        bg.setColor(new Color(0, 0, 0, 70));
+        bg.fillRect(panel.x, panel.y, panel.width, panel.height);
+        bg.dispose();
+    }
+
+    /**
+     * Width (in pixels) of the picture used for the zoomed view of the mystery game, for a scene shown
+     * {@code fitWidth} pixels wide: about three times larger, so the zoomed animal stays sharp.
+     */
+    public static int zoomWidth(int fitWidth) {
+        return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, (int) Math.ceil(fitWidth * 3.0 / 256.0) * 256));
+    }
+
+    // Prepares the pictures of a scene (normal size, all-animals-in-colour and zoomed) so the game opens without a stall.
+    public static void warm(Biome biome, int normalWidth, int zoomRenderWidth) {
+        Composed c = compose(biome.getBiomeType(), normalWidth);
+        if (c == null) return;
+        revealedOf(c);
+        compose(biome.getBiomeType(), zoomRenderWidth);
+    }
+
+    /**
+     * Draws the scene scaled and moved to {@code sceneRect} (it may be larger than the panel, which shows only part
+     * of it) using the picture composed for {@code renderWidth}. Used for the mystery game's zoom. Hotspots are
+     * fractions of sceneRect. completed = all animals in colour; found = animals the player has found;
+     * marks = draw the green frame and tick around found animals.
+     */
+    public static void drawView(Graphics2D g, Biome biome, Rectangle panel, Rectangle sceneRect, int renderWidth,
+                                boolean completed, boolean[] found, boolean marks) {
+        int[] rect = {sceneRect.x, sceneRect.y, sceneRect.width, sceneRect.height};
+        Composed composed = compose(biome.getBiomeType(), renderWidth);
+        if (composed == null) {
+            drawFallback(g, biome, panel, rect, completed, found);
+            return;
+        }
+        drawBorder(g, composed, panel);
+        BufferedImage picture = composed.scene;
+        boolean patchesForAll = false;
+        if (completed) {
+            if (composed.revealed != null) picture = composed.revealed;
+            else patchesForAll = true;                          // not built at this size: colour patches do the same job
+        }
+        Graphics2D sg = (Graphics2D) g.create();
+        sg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        sg.clip(panel);
+        sg.translate(sceneRect.x, sceneRect.y);
+        sg.scale(sceneRect.width / (double) composed.width, sceneRect.height / (double) composed.height());
+        sg.drawImage(picture, 0, 0, null);
+        sg.dispose();
+        boolean[] show = found;
+        if (patchesForAll) {
+            show = new boolean[biome.getAnimals().size()];
+            java.util.Arrays.fill(show, true);
+        }
+        if ((!completed || patchesForAll) && show != null) {
+            Graphics2D fg = (Graphics2D) g.create();
+            fg.clip(panel);
+            drawFound(fg, composed, biome, show, rect, marks && !completed);
+            fg.dispose();
+        }
     }
 
     // The scene with every animal in colour (built the first time an animal is found). 

@@ -19,8 +19,8 @@ public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Re
         setLayout(new BorderLayout(0, 16));
         setBorder(BorderFactory.createEmptyBorder(26, 44, 30, 44));
 
-        JLabel title = GuiKit.label("Achievements", 36, true, ZooQuestGUI.GOLD);
-        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 44, 17);
+        JLabel title = GuiKit.title("Achievements", 36, true, ZooQuestGUI.GOLD);
+        GuiKit.Btn back = new GuiKit.Btn("\u2190 Back", GuiKit.GREY, 130, 44, 17).ghost();
         back.addActionListener(e -> app.show(ZooQuestGUI.MENU));
         JPanel header = GuiKit.transparent(new BorderLayout());
         header.add(title, BorderLayout.WEST);
@@ -76,12 +76,12 @@ public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Re
             GuiImages.drawBadge(g, biomeName, noClue, got, (w - size) / 2, 18, size);
 
             int y = 18 + size + 28;
-            g.setFont(new Font("SansSerif", Font.BOLD, 18));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 18));
             g.setColor(got ? ZooQuestGUI.GOLD : new Color(175, 185, 177));
             String t = biomeName + " - " + (noClue ? "No-Clue badge" : "Clear badge");
             FontMetrics fm = g.getFontMetrics();
-            g.drawString(t, (w - fm.stringWidth(t)) / 2, y);
-            g.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            GuiKit.shadowString(g, t, (w - fm.stringWidth(t)) / 2, y);
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 14));
             g.setColor(got ? Color.WHITE : new Color(170, 180, 172));
             String d = noClue ? "Solve every mystery without using a clue" : "Solve every mystery";
             y += 24;
@@ -89,7 +89,7 @@ public class AchievementsPanel extends BackgroundPanel implements ZooQuestGUI.Re
                 g.drawString(line, (w - g.getFontMetrics().stringWidth(line)) / 2, y);
                 y += 19;
             }
-            g.setFont(new Font("SansSerif", Font.BOLD, 13));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 13));
             g.setColor(got ? new Color(150, 235, 160) : new Color(150, 160, 152));
             String s = got ? "Earned " + badge.getDateEarned() : "Locked";
             g.drawString(s, (w - g.getFontMetrics().stringWidth(s)) / 2, Math.min(h - 14, y + 8));

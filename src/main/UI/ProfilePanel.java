@@ -21,7 +21,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
     private final JLabel message = GuiKit.label(" ", 14, true, new Color(255, 160, 130));
     private final JPanel thumbs = GuiKit.transparent(new GridLayout(0, 2, 12, 12));
     private final JPanel achList = GuiKit.transparent(null);
-    private final GuiKit.Btn editBtn = new GuiKit.Btn("Edit", GuiKit.BLUE, 150, 42, 17);
+    private final GuiKit.Btn editBtn = new GuiKit.Btn("Edit", GuiKit.BLUE, 150, 42, 17).lightBorder();
     private boolean editing;
 
     public ProfilePanel(ZooQuestGUI app) {
@@ -37,13 +37,13 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         JPanel left = ZooQuestGUI.card(0);
         left.setLayout(new BorderLayout(0, 10));
         left.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
-        JLabel title = GuiKit.label("Profile", 36, true, ZooQuestGUI.GOLD);
+        JLabel title = GuiKit.title("Profile", 36, true, ZooQuestGUI.GOLD);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         left.add(title, BorderLayout.NORTH);
 
-        nameLabel.setFont(new Font("SansSerif", Font.PLAIN, 22));
+        nameLabel.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 22));
         nameLabel.setForeground(Color.WHITE);
-        nameField.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        nameField.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 20));
         nameField.setVisible(false);
         nameField.addActionListener(e -> save());
         JPanel nameRow = GuiKit.transparent(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -70,7 +70,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         JPanel right = ZooQuestGUI.card(0);
         right.setLayout(new BorderLayout(0, 10));
         right.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
-        JLabel rt = GuiKit.label("Achievements", 36, true, ZooQuestGUI.GOLD);
+        JLabel rt = GuiKit.title("Achievements", 36, true, ZooQuestGUI.GOLD);
         rt.setHorizontalAlignment(SwingConstants.CENTER);
         right.add(rt, BorderLayout.NORTH);
         achList.setLayout(new BoxLayout(achList, BoxLayout.Y_AXIS));
@@ -86,7 +86,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         outer.add(two, BorderLayout.CENTER);
 
         editBtn.addActionListener(e -> { if (editing) save(); else startEdit(); });
-        GuiKit.Btn back = new GuiKit.Btn("Back", GuiKit.GREY, 150, 42, 17);
+        GuiKit.Btn back = new GuiKit.Btn("Back", GuiKit.GREY, 150, 42, 17).lightBorder();
         back.addActionListener(e -> app.show(ZooQuestGUI.MENU));
         JPanel south = GuiKit.transparent(new BorderLayout());
         south.add(editBtn, BorderLayout.WEST);
@@ -182,11 +182,11 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
                 g.fillRoundRect(0, 0, w, h, 18, 18);
             }
             if (!done) { g.setColor(new Color(0, 0, 0, 150)); g.fillRoundRect(0, 0, w, h, 18, 18); }
-            g.setFont(new Font("SansSerif", Font.BOLD, 17));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 17));
             g.setColor(Color.WHITE);
             FontMetrics fm = g.getFontMetrics();
             g.drawString(biome.getBiomeName(), (w - fm.stringWidth(biome.getBiomeName())) / 2, h / 2 + 6);
-            g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 12));
             String s = done ? "Completed" : "Not completed";
             g.setColor(done ? new Color(150, 235, 160) : new Color(200, 205, 202));
             g.drawString(s, (w - g.getFontMetrics().stringWidth(s)) / 2, h - 12);
@@ -220,16 +220,16 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
             g.drawRoundRect(1, 1, w - 3, h - 3, 20, 20);
             GuiImages.drawBadgeFor(g, a, 10, 10, h - 20);
             int x = h + 6;
-            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 16));
             g.setColor(ZooQuestGUI.GOLD);
-            g.drawString(GuiKit.friendly(a), x, 30);
-            g.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            GuiKit.shadowString(g, GuiKit.friendly(a), x, 30);
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 13));
             g.setColor(Color.WHITE);
             String d = a.getDescription();
             FontMetrics fm = g.getFontMetrics();
             while (fm.stringWidth(d) > w - x - 10 && d.length() > 4) d = d.substring(0, d.length() - 2);
             g.drawString(d.equals(a.getDescription()) ? d : d + "...", x, 50);
-            g.setFont(new Font("SansSerif", Font.BOLD, 12));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, 12));
             g.setColor(new Color(150, 235, 160));
             g.drawString("Earned " + a.getDateEarned(), x, 68);
             g.dispose();

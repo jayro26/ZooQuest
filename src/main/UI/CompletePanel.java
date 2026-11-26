@@ -9,8 +9,8 @@ import main.Flow;
 
 public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable {
     private final ZooQuestGUI app;
-    private final JLabel count = GuiKit.label(" ", 28, false, Color.WHITE);
-    private final JLabel completed = GuiKit.label(" ", 22, false, Color.WHITE);
+    private final JLabel count = GuiKit.title(" ", 28, false, Color.WHITE);
+    private final JLabel completed = GuiKit.title(" ", 22, false, Color.WHITE);
     private final JLabel stats = GuiKit.label(" ", 15, false, new Color(215, 235, 215));
 
     public CompletePanel(ZooQuestGUI app) {
@@ -19,7 +19,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
         setBorder(BorderFactory.createEmptyBorder(20, 60, 24, 60));
         ((BorderLayout) getLayout()).setVgap(12);
 
-        JLabel found = GuiKit.label("Animals Found", 24, true, Color.WHITE);
+        JLabel found = GuiKit.title("Animals Found", 24, true, Color.WHITE);
         found.setAlignmentX(CENTER_ALIGNMENT);
         count.setAlignmentX(CENTER_ALIGNMENT);
         JPanel north = GuiKit.transparent(null);
@@ -30,7 +30,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
 
         add(new Picture(), BorderLayout.CENTER);
 
-        JLabel big = GuiKit.label("Congratulations!!", 40, true, Color.WHITE);
+        JLabel big = GuiKit.title("Congratulations!!", 40, true, Color.WHITE);
         big.setAlignmentX(CENTER_ALIGNMENT);
         completed.setAlignmentX(CENTER_ALIGNMENT);
         stats.setAlignmentX(CENTER_ALIGNMENT);
@@ -55,7 +55,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
         setBiome(Flow.biome);
         int n = Flow.biome.getAnimals().size();
         count.setText(n + "/" + n);
-        completed.setText("You Completed " + Flow.completedLabel());
+        completed.setText("You Completed " + Flow.biome.getBiomeName());
         stats.setText("Wrong guesses: " + Flow.wrongGuesses + "   |   Clues used: " + (Flow.cluesUsed ? "yes" : "none"));
         repaint();
     }
@@ -69,14 +69,19 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
             int w = getWidth(), h = getHeight();
             if (Flow.biome == null) { g.dispose(); return; }
             BufferedImage img = GuiImages.load(GuiImages.sceneFile(Flow.biome, "complete"));
+            // the frame hugs the picture: the whole 16:9 scene, as large as fits, centred (no blurred sides)
+            Rectangle fr = ZooQuestGUI.pictureFrame(this);          // same size as on the New Biome Unlocked screen
+            int fw = fr.width, fh = fr.height, fx = fr.x, fy = fr.y;
             if (img != null) {
-                GuiImages.drawCover(g, img, 0, 0, w, h, 30);
+                GuiImages.drawCover(g, img, fx, fy, fw, fh, 30);
             } else if (SceneLayouts.forType(Flow.biome.getBiomeType()).length > 0) {
+                Rectangle frame = new Rectangle(fx, fy, fw, fh);
                 Graphics2D sg = (Graphics2D) g.create();
-                sg.setClip(new RoundRectangle2D.Float(0, 0, w, h, 30, 30));
-                HiddenSceneRenderer.drawScene(sg, Flow.biome, w, h, true, null);
+                sg.setClip(new RoundRectangle2D.Float(fx, fy, fw, fh, 30, 30));
+                HiddenSceneRenderer.drawScene(sg, Flow.biome, frame, frame, true, null);
                 sg.dispose();
             } else {
+                fx = 0; fy = 0; fw = w; fh = h;
                 g.setPaint(new GradientPaint(0, 0, ScenePanel.top(Flow.biome.getBiomeType()), 0, h, ScenePanel.bottom(Flow.biome.getBiomeType()).brighter()));
                 g.fill(new RoundRectangle2D.Float(0, 0, w, h, 30, 30));
                 java.util.List<Animal> animals = Flow.biome.getAnimals();
@@ -89,7 +94,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
             }
             g.setColor(ZooQuestGUI.GOLD);
             g.setStroke(new BasicStroke(3f));
-            g.drawRoundRect(1, 1, w - 3, h - 3, 30, 30);
+            g.drawRoundRect(fx + 1, fy + 1, fw - 3, fh - 3, 30, 30);
             g.dispose();
         }
     }

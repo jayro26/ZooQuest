@@ -89,7 +89,7 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
         achievements.setBounds(x0, sideTop, side, side);
         start.setBounds(x0 + side + gap, rowTop, big, big);
         profile.setBounds(x0 + side + gap + big + gap, sideTop, side, side);
-        achievements.setFontSize(Math.max(13, (int) Math.round(20 * s)));
+        achievements.setFontSize(Math.max(13, (int) Math.round(25 * s)));
         profile.setFontSize(Math.max(13, (int) Math.round(25 * s)));
         start.setFontSize(Math.max(15, (int) Math.round(40 * s)));
 
@@ -127,7 +127,7 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
             if (img != null) {
                 GuiImages.drawContain(g, img, 0, 0, getWidth(), getHeight());
             } else {
-                g.setFont(new Font("SansSerif", Font.BOLD, Math.max(20, getHeight() / 2)));
+                g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(20, getHeight() / 2)));
                 g.setColor(ZooQuestGUI.GOLD);
                 FontMetrics fm = g.getFontMetrics();
                 String t = "Zoo Quest";
@@ -168,18 +168,14 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
         protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             GuiKit.quality(g);
-            g.setFont(new Font("SansSerif", style, size));
+            g.setFont(new Font(ZooQuestGUI.FONT_NAME, style, size));
             FontMetrics fm = g.getFontMetrics();
             int tw = fm.stringWidth(text);
             int x = align == SwingConstants.CENTER ? (getWidth() - tw) / 2
                     : align == SwingConstants.RIGHT ? getWidth() - tw : 0;
             int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-            g.setColor(new Color(0, 0, 0, 120));
-            g.drawString(text, x + 2, y + 2);
-            g.setColor(new Color(0, 0, 0, 70));
-            g.drawString(text, x + 3, y + 3);
             g.setColor(color);
-            g.drawString(text, x, y);
+            GuiKit.shadowString(g, text, x, y);
             g.dispose();
         }
     }
@@ -204,7 +200,7 @@ public class MainMenuPanel extends BackgroundPanel implements ZooQuestGUI.Refres
         void setFontSize(int s) {
             if (s != size) {
                 size = s;
-                setFont(new Font("SansSerif", Font.BOLD, size));
+                setFont(new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, size));
             }
         }
 

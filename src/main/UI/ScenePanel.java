@@ -107,6 +107,14 @@ public class ScenePanel extends JPanel implements Fadable {
         }
     }
 
+    // The elements stay inside the centred 16:9 stage while the picture behind them fills the whole panel.
+    @Override
+    public Insets getInsets() {
+        Insets b = super.getInsets();
+        Insets s = ZooQuestGUI.stageInsets(this);
+        return new Insets(b.top + s.top, b.left + s.left, b.bottom + s.bottom, b.right + s.right);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

@@ -27,6 +27,14 @@ public class BackgroundPanel extends JPanel implements Fadable {
         refineTimer.setRepeats(false); 
     }
 
+    // The elements stay inside the centred 16:9 stage while the picture behind them fills the whole panel.
+    @Override
+    public Insets getInsets() {
+        Insets b = super.getInsets();
+        Insets s = ZooQuestGUI.stageInsets(this);
+        return new Insets(b.top + s.top, b.left + s.left, b.bottom + s.bottom, b.right + s.right);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -131,7 +139,6 @@ public class BackgroundPanel extends JPanel implements Fadable {
         }
     }
 
-    // NEW CODE: the picture scaled "cover style" to pw x ph real pixels (best quality when {@code best}).
     private BufferedImage render(int pw, int ph, boolean best) {
         BufferedImage base = mips.get(0);
         double s = Math.max(pw / (double) base.getWidth(), ph / (double) base.getHeight());
