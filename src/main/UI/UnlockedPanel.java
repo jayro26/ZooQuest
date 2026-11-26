@@ -56,11 +56,11 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
 
         caption.setAlignmentX(CENTER_ALIGNMENT);
         JPanel buttons = GuiKit.transparent(new FlowLayout(FlowLayout.CENTER, 24, 0));
-        GuiKit.Btn toBiomes = new GuiKit.Btn("Go to Biomes", GuiKit.GREEN, 250, 48, 18);
+        GuiKit.Btn toBiomes = new GuiKit.Btn("Go to Biomes", GuiKit.GREEN, 250, 48, 18).lightBorder();
         toBiomes.addActionListener(e -> app.showWithLoading(ZooQuestGUI.BIOMES));   // same dim + "Loading...." as opening a biome
-        GuiKit.Btn again = new GuiKit.Btn("Play Again", GuiKit.BLUE, 250, 48, 18);
+        GuiKit.Btn again = new GuiKit.Btn("Play Again", GuiKit.BLUE, 250, 48, 18).lightBorder();
         again.addActionListener(e -> playAgain());
-        GuiKit.Btn menu = new GuiKit.Btn("Main Menu", GuiKit.GREY, 250, 48, 18);
+        GuiKit.Btn menu = new GuiKit.Btn("Main Menu", GuiKit.GREY, 250, 48, 18).lightBorder();
         menu.addActionListener(e -> app.showWithLoading(ZooQuestGUI.MENU));
         buttons.add(toBiomes);
         buttons.add(again);
@@ -138,29 +138,39 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
     }
 
     // Every frame has the same size: ACH_WIDTH wide (a little longer than the longest name) and as high as its two lines.
-    private static final int ACH_WIDTH = 380;              // frame width (at the normal window size)
-    private static final int ACH_LINE_GAP = 10;            // space between "New Achievement:" and the name
-    private static final int ACH_DESC_GAP = 6;             // space between the name and the description
-    private static final int ACH_DESC_LINES = 2;           // the description may use up to two lines (the frame always has room for both)
+    private static final int ACH_WIDTH = 310;              // frame width (at the normal window size)
+    private static final int ACH_LINE_GAP = 6;             // space between "New Achievement:" and the name
+    private static final int ACH_DESC_GAP = 3;             // space between the name and the description
+    private static final int ACH_DESC_LINES = 2;           // the description may use up to two lines; the frame is only as high as its text needs
     private static final int ACH_PAD = 14;                 // space between the frame's edge and its text
     private static final int ACH_GAP = 12;                 // space between stacked frames
 
     private Font achHeadFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(11, (int) Math.round(12 * sc))); }
 
-    private Font achNameFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, Math.max(14, (int) Math.round(18 * sc))); }
+    private Font achNameFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.BOLD, Math.max(14, (int) Math.round(18 * sc))); }
 
     private Font achDescFont(double sc) { return new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, Math.max(11, (int) Math.round(13 * sc))); }
 
-    private int achBoxHeight(double sc) {
+    // the description of achievement i, wrapped to the frame's width (at most ACH_DESC_LINES lines)
+    private java.util.List<String> achDescLines(int i, double sc) {
+        int inner = (int) Math.round(ACH_WIDTH * sc) - 2 * (int) Math.round(ACH_PAD * sc);
+        java.util.List<String> all = GuiKit.wrap(i < achDescs.size() ? achDescs.get(i) : "", getFontMetrics(achDescFont(sc)), inner);
+        return all.size() > ACH_DESC_LINES ? all.subList(0, ACH_DESC_LINES) : all;
+    }
+
+    // all frames have the same width; the height follows the lines of text (one or two description lines)
+    private int achBoxHeight(int i, double sc) {
         int pad = (int) Math.round(ACH_PAD * sc);
+        int lines = achDescLines(i, sc).size();
         return 2 * pad + getFontMetrics(achHeadFont(sc)).getHeight() + ACH_LINE_GAP + getFontMetrics(achNameFont(sc)).getHeight()
-                + ACH_DESC_GAP + ACH_DESC_LINES * getFontMetrics(achDescFont(sc)).getHeight();
+                + (lines == 0 ? 0 : ACH_DESC_GAP + lines * getFontMetrics(achDescFont(sc)).getHeight());
     }
 
     private Rectangle achievementArea() {
         Rectangle st = ZooQuestGUI.stageBox(getWidth(), getHeight());
         double sc = achScale();
-        int stack = achNames.size() * (achBoxHeight(sc) + (int) Math.round(ACH_GAP * sc));
+        int stack = 0;
+        for (int i = 0; i < achNames.size(); i++) stack += achBoxHeight(i, sc) + (int) Math.round(ACH_GAP * sc);
         return new Rectangle(st.x, st.y, (int) Math.round((24 + ACH_WIDTH) * sc) + 20, (int) Math.round(22 * sc) + stack + 10);
     }
 
@@ -173,11 +183,12 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
         Rectangle st = ZooQuestGUI.stageBox(getWidth(), getHeight());
         double sc = achScale();
         int x = st.x + (int) Math.round(24 * sc), y = st.y + (int) Math.round(22 * sc);
-        int w = (int) Math.round(ACH_WIDTH * sc), boxH = achBoxHeight(sc);
+        int w = (int) Math.round(ACH_WIDTH * sc);
         int gap = (int) Math.round(ACH_GAP * sc), pad = (int) Math.round(ACH_PAD * sc);
         Font head = achHeadFont(sc), name = achNameFont(sc), desc = achDescFont(sc);
         FontMetrics hm = g2.getFontMetrics(head), nm = g2.getFontMetrics(name), dm = g2.getFontMetrics(desc);
         for (int i = 0; i < achNames.size() && i < achAlpha.length; i++) {
+            int boxH = achBoxHeight(i, sc);
             float alpha = achAlpha[i] * (isFadeEnabled() ? getContentAlpha() : 1f);
             if (alpha > 0.002f) {
                 Graphics2D b = (Graphics2D) g2.create();
@@ -193,12 +204,13 @@ public class UnlockedPanel extends BackgroundPanel implements ZooQuestGUI.Refres
                 b.drawString("New Achievement:", x + pad, hy);
                 b.setFont(name);
                 int ny = hy + hm.getDescent() + ACH_LINE_GAP + nm.getAscent();
-                b.drawString(achNames.get(i), x + pad, ny);
+                b.setColor(ZooQuestGUI.GOLD);                        // same gold + shadow as on the Achievements and Profile screens
+                GuiKit.shadowString(b, achNames.get(i), x + pad, ny);
                 b.setFont(desc);
                 b.setColor(new Color(225, 232, 228));
                 int dy = ny + nm.getDescent() + ACH_DESC_GAP + dm.getAscent();
-                java.util.List<String> lines = GuiKit.wrap(i < achDescs.size() ? achDescs.get(i) : "", dm, w - 2 * pad);
-                for (int k = 0; k < lines.size() && k < ACH_DESC_LINES; k++) { b.drawString(lines.get(k), x + pad, dy); dy += dm.getHeight(); }
+                java.util.List<String> lines = achDescLines(i, sc);
+                for (int k = 0; k < lines.size(); k++) { b.drawString(lines.get(k), x + pad, dy); dy += dm.getHeight(); }
                 b.dispose();
             }
             y += boxH + gap;                                 // the next achievement is stacked below this one

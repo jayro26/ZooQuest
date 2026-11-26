@@ -106,7 +106,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
         GameManager gm = app.getGameManager();
         UserProfile p = gm.getCurrentPlayer();
         if (p == null) return;
-        nameLabel.setText("<html><u>" + p.getUsername().replace("&", "&amp;").replace("<", "&lt;") + "</u></html>");
+        nameLabel.setText(p.getUsername());
         nameLabel.setVisible(!editing);
         nameField.setVisible(editing);
         if (editing) nameField.setText(p.getUsername());
@@ -189,7 +189,7 @@ public class ProfilePanel extends BackgroundPanel implements ZooQuestGUI.Refresh
             g.setFont(new Font(ZooQuestGUI.FONT_NAME, Font.PLAIN, 12));
             String s = done ? "Completed" : "Not completed";
             g.setColor(done ? new Color(150, 235, 160) : new Color(200, 205, 202));
-            g.drawString(s, (w - g.getFontMetrics().stringWidth(s)) / 2, h - 12);
+            GuiKit.shadowString(g, s, (w - g.getFontMetrics().stringWidth(s)) / 2, h - 12);   // with the 40 % shadow
             g.setColor(done ? ZooQuestGUI.GOLD : new Color(255, 255, 255, 70));
             g.setStroke(new BasicStroke(2f));
             g.drawRoundRect(1, 1, w - 3, h - 3, 18, 18);

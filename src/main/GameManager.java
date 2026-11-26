@@ -84,7 +84,7 @@ public class GameManager {
         currentPlayer = new UserProfile(username);
         currentBiome = null;
         currentBiomeIndex = -1;
-        resetRunState(); // NEW CODE
+        resetRunState();
         buildBiomes();
         loadProgress();
     }

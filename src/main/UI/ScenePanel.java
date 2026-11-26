@@ -10,6 +10,9 @@ public class ScenePanel extends JPanel implements Fadable {
     private BufferedImage cached;
     private int cachedW = -1, cachedH = -1;
     private String cachedFor = "";
+    private boolean sharp;                                  // true when the cached copy was made with the best-quality scaling
+    // fires 150 ms after the last size change and swaps in the best-quality copy (same as BackgroundPanel)
+    private final Timer refineTimer = new Timer(150, e -> refine());
 
     // ---- fade support: only the children (buttons, logo, text...) fade; the picture behind them never does
     private boolean fadeEnabled;
@@ -83,6 +86,18 @@ public class ScenePanel extends JPanel implements Fadable {
 
     public ScenePanel() {
         setLayout(new BorderLayout());
+        refineTimer.setRepeats(false);
+    }
+
+    private void refine() {
+        if (cached != null && !sharp && biome != null) {
+            java.util.List<BufferedImage> mips = BackgroundPanel.mipmapsFor(biome.getBackgroundTemplate());
+            if (!mips.isEmpty()) {
+                cached = BackgroundPanel.renderCover(mips, cachedW, cachedH, true);
+                sharp = true;
+                repaint();
+            }
+        }
     }
 
     public void setBiome(Biome b) {
@@ -120,26 +135,28 @@ public class ScenePanel extends JPanel implements Fadable {
         super.paintComponent(g);
         int w = getWidth(), h = getHeight();
         String type = biome == null ? "Jungle" : biome.getBiomeType();
-        BufferedImage src = biome == null ? null : GuiImages.load(biome.getBackgroundTemplate());
+        java.util.List<BufferedImage> mips = biome == null ? java.util.List.of() : BackgroundPanel.mipmapsFor(biome.getBackgroundTemplate());
         Graphics2D g2 = (Graphics2D) g.create();
-        if (src == null) {
+        if (mips.isEmpty()) {
             g2.setPaint(new GradientPaint(0, 0, top(type), 0, h, bottom(type)));
             g2.fillRect(0, 0, w, h);
             g2.setColor(new Color(255, 255, 255, 18));
             g2.fillOval(-120, -140, 420, 420);
             g2.fillOval(w - 300, h - 280, 520, 520);
         } else {
-            if (cached == null || cachedW != w || cachedH != h || !cachedFor.equals(biome.getBiomeName())) {
-                double s = Math.max(w / (double) src.getWidth(), h / (double) src.getHeight());
-                int sw = (int) Math.ceil(src.getWidth() * s), sh = (int) Math.ceil(src.getHeight() * s);
-                cached = new BufferedImage(Math.max(1, w), Math.max(1, h), BufferedImage.TYPE_INT_RGB);
-                Graphics2D c = cached.createGraphics();
-                c.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                c.drawImage(src, (w - sw) / 2, (h - sh) / 2, sw, sh, null);
-                c.dispose();
-                cachedW = w; cachedH = h; cachedFor = biome.getBiomeName();
+            // the picture is scaled to the real screen pixels (also on high-DPI screens), through the half-size copies
+            java.awt.geom.AffineTransform tx = g2.getTransform();
+            double sx = Math.max(1.0, tx.getScaleX()), sy = Math.max(1.0, tx.getScaleY());
+            int pw = Math.max(1, (int) Math.ceil(w * sx)), ph = Math.max(1, (int) Math.ceil(h * sy));
+            if (cached == null || cachedW != pw || cachedH != ph || !cachedFor.equals(biome.getBiomeName())) {
+                cached = BackgroundPanel.renderCover(mips, pw, ph, false);   // fast while the size is changing
+                cachedW = pw; cachedH = ph; cachedFor = biome.getBiomeName();
+                sharp = false;
+                refineTimer.restart();                                       // sharpen once the size has settled
             }
+            g2.scale(1 / sx, 1 / sy);                                        // draw the cache 1:1 on the screen pixels
             g2.drawImage(cached, 0, 0, null);
+            g2.scale(sx, sy);
             g2.setColor(new Color(0, 0, 0, 60));   // slight darkening so text stays readable
             g2.fillRect(0, 0, w, h);
         }

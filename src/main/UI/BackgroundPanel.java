@@ -140,6 +140,11 @@ public class BackgroundPanel extends JPanel implements Fadable {
     }
 
     private BufferedImage render(int pw, int ph, boolean best) {
+        return renderCover(mips, pw, ph, best);
+    }
+
+    // shared with ScenePanel, so every screen's background is scaled the same (good) way
+    static BufferedImage renderCover(List<BufferedImage> mips, int pw, int ph, boolean best) {
         BufferedImage base = mips.get(0);
         double s = Math.max(pw / (double) base.getWidth(), ph / (double) base.getHeight());
         int sw = (int) Math.ceil(base.getWidth() * s), sh = (int) Math.ceil(base.getHeight() * s);
@@ -161,7 +166,7 @@ public class BackgroundPanel extends JPanel implements Fadable {
     }
 
     // loads the picture once (shared by every screen that uses it) and builds its half-size copies.
-    private static List<BufferedImage> mipmapsFor(String imageFile) {
+    static List<BufferedImage> mipmapsFor(String imageFile) {
         return MIPMAPS.computeIfAbsent(imageFile, file -> {
             BufferedImage src = ZooQuestGUI.loadImage(file);
             if (src == null)

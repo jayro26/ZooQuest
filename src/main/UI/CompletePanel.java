@@ -34,7 +34,7 @@ public class CompletePanel extends ScenePanel implements ZooQuestGUI.Refreshable
         big.setAlignmentX(CENTER_ALIGNMENT);
         completed.setAlignmentX(CENTER_ALIGNMENT);
         stats.setAlignmentX(CENTER_ALIGNMENT);
-        GuiKit.Btn next = new GuiKit.Btn("Next", GuiKit.GREEN, 260, 48, 19);
+        GuiKit.Btn next = new GuiKit.Btn("Next", GuiKit.GREEN, 260, 48, 19).lightBorder();
         next.setAlignmentX(CENTER_ALIGNMENT);
         next.addActionListener(e -> app.show(ZooQuestGUI.UNLOCKED));
         JPanel south = GuiKit.transparent(null);
