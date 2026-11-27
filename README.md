@@ -98,7 +98,6 @@ java main.ZooQuest
 5. Package the application as a standalone executable version for easier installation and distribution.
 
 ## 👥 Project Contributors
-
 <table>
   <tr align="center">
       <th style="background-color: #E7EAED;"> </th>
@@ -128,3 +127,7 @@ java main.ZooQuest
     </td>
   </tr>
 </table>
+<p>
+  <strong>Team Name:</strong> cup of code<br>
+  <strong>Section in OOP 101:</strong>  CS 2101
+</p>
