@@ -57,7 +57,7 @@ Badges or titles such as “Jungle Explorer” or “Safari Scout” are awarded
 
 ## 📝 Instructions for running the program
 
-1. Download the zip file and extract it.
+1. Download the zip file found in the Releases and extract it.
 2. Inside the ZooQuest folder, right click the src folder and select **Open in Terminal**.
 3. Compile the program using the command:
 ```
