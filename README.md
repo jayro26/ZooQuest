@@ -1,6 +1,6 @@
 <div align="center">
   <h1> 
-    <img src="screenshots/zoo-quest-logo.png" width="300" />
+    <img src="screenshots/zoo-quest-logo.png" width="300">
   </h1>
   <p> 
   An Interactive Zoo Exploration and Investigation Game <br>
@@ -10,8 +10,6 @@
   A project rquired for the course: <em><strong>OOP 101: Object Oriented Programming</strong></em> 
   </p>
 </div>
-
-##
 
 ## 📙 Description
 
@@ -33,18 +31,22 @@ This system will bridge the educational divide by granting every child, regardle
 1. **User Interface** <br> 
 A user interface will feature a child-friendly, colorful theme, large button, simple icons, and clear navigation. It includes a menu page, biome map, achievements, and animal information panel. <br>
 2. **Biome and Animal Interaction** <br> 
-Virtual biomes such as Jungle, Safari, and Aquatic that children can freely explore, and each biome contains its own corresponding animals that children can view their habitat, diet, sounds, and behavior. <br>
+Virtual biomes such as Jungle, Safari, and Aquatic that children can freely explore, and each biome contains its own corresponding animals that children can view their habitat, diet, and behavior. <br>
 3. **Mystery Game** <br> 
 A clue-based game in which children (users) observe animals with or without given clues and submit guesses to solve each biome's wildlife mystery case. <br>
 4. **Achievments** <br> 
-Badges or titles such as “First Clue Collected” or “Master Explorer” are awarded for exploring biomes, learning animal facts, and solving cases. <br>
+Badges or titles such as “Jungle Explorer” or “Safari Scout” are awarded for exploring biomes, learning animal facts, and solving cases. <br>
 
 ## ⌨️ Technologies Used:
 
 1. **Java** - The main programming language of the system
-2. **Java Swing** - Used for the GUI implementation
-3. **Java AWT** - Used for screen navigation.
-4. **Java Stanadard I/O** - Used for loading local animal and badge visual assets.
+2. **Java Swing** - Used to build the graphical user interface (GUI).
+3. **Java 2D (AWT)** - Used to render custom interface elements such as buttons, borders, shadows and animations.
+4. **Image I/O** - A Java API used for loading local image assets (eg. animal illustrations and biome backgrounds).
+5. **Text-Based Save Files** - Used for file handling to store each palyers progress.
+6. **javac** - To compile the Java source code into executable bytecode.
+7. **Visual Studio Code** - The IDE used to write, run and debug the source code.
+8. **Git and Github** - For version control and sharing the project repository.
 
 ## 🧩 OOP Principles Demonstrated
 
@@ -68,6 +70,18 @@ java main.ZooQuest
 
 ## 📷 Sample Screenshots
 
+<div>
+    <img src="screenshots/Screenshot 2026-11-26 205817.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 210104.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 210114.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 210913.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 211647.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 211120.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 211202.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 210849.png" width="250">
+    <img src="screenshots/Screenshot 2026-11-26 210856.png" width="250">
+</div>
+
 ## 🔒 Known Limitations
 
 1. The system will only include a limited number of zoo biomes and animals.
@@ -79,45 +93,38 @@ java main.ZooQuest
 
 1. Expand the encyclopedia with additional biomes (e.g., Arctic, Desert) and a broader roster of wildlife species.
 2. Introduce randomized clue generation and dynamic question banks to increase replayability.
-3. Integrate richer multimedia assets, such as authentic animal audio recordings and animated 2D sprites.
+3. Integrate multimedia assets, such as background music, animal audio recordings and animated 2D sprites.
 4. Implement a stronger save feature that stores player progress in a more secured file format.
 5. Package the application as a standalone executable version for easier installation and distribution.
 
 ## 👥 Project Contributors
 
 <table>
-<tr>
-    <th> Name </th>
-    <th> Contributions </h>
-</tr>
-<tr>
-    <td> Arias, Jayro J. </td>
+  <tr align="center">
+      <th style="background-color: #E7EAED;"> </th>
+      <th style="background-color: #FF9F0A;"> Arias, Jayro J. </th>
+      <th style="background-color: #B562FF;"> Carenan, Ahron Simeon D. </th>
+      <th style="background-color: #f76868;"> De Lumen, Janelle H. </th>
+  </tr>
+  <tr>
+    <td style="background-color: #E7EAED;"> Roles </td>
     <td>
         <ul>
-            <li> Develops the program flow and user interaction flow of the ZooQuest application. </li>
+            <li> Develop the UI/UX design of the program. </li>
             <li> Maintains the README, testing documentation, screenshots, and assists in checking the application's functionality. </li>
         </ul>
     </td>
-</tr>
-<tr>
-    <td> Carenan, Ahron Simeon D.  </td>
     <td>
         <ul>
             <li> Coordinates the implementation of Java classes, methods, and OOP features.  </li>
-            <li> Develop the UI/UX design of the program. </li>
+            <li> Develops the program flow and user interaction flow of the ZooQuest application. </li>
         </ul>
     </td>
-</tr>
-<tr>
-    <td> De Luna, Janelle H. </td>
     <td>
         <ul>
             <li> Develops system requirements, class designs, UML diagrams, and overall application structure. </li>
             <li> Helps plan the GUI navigation and gameplay sequence, including biome exploration and mystery game progression. </li>
         </ul>
     </td>
-</tr>
+  </tr>
 </table>
-
-
- 
